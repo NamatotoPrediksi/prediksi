@@ -402,21 +402,75 @@
   }
 
   @media(max-width: 480px) {
-    .card-header { flex-direction: column; align-items: flex-start; }
-    .time-wrap { flex-wrap: wrap; }
-    .num-digits { font-size: 18px; letter-spacing: 4px; }
-    .bbfs-block .num-digits { font-size: 20px; letter-spacing: 6px; }
-    .numbers-body { grid-template-columns: 1fr; }
-    .num-block.bbfs-block { grid-column: 1; }
+    /* Header mobile */
+    .site-header { padding: 24px 16px 20px; }
+    .header-inner { padding: 12px 16px 4px; }
+    .brand-logo-round { width: 48px; height: 48px; left: 12px; }
+    .site-title { font-size: 24px; letter-spacing: 2px; }
+    .logo-tag { font-size: 9px; letter-spacing: 3px; }
+    .live-clock { font-size: 22px; }
+
+    /* Card mobile */
+    .card-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .time-wrap { flex-direction: row; gap: 12px; }
+    .item-name { font-size: 11px; letter-spacing: 1px; }
+
+    /* Numbers mobile */
+    .numbers-body { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; }
+    .num-block.bbfs-block { grid-column: 1 / -1; }
+    .num-digits { font-size: 16px; letter-spacing: 3px; }
+    .bbfs-block .num-digits { font-size: 18px; letter-spacing: 5px; }
+    .num-type { font-size: 8px; }
+
+    /* Top notice mobile */
+    .top-notice { font-size: 9px; letter-spacing: 1px; padding: 8px 12px; }
+
+    /* Main padding */
+    .main { padding: 20px 10px 60px; }
+  }
+
+  /* BRAND LOGO HEADER */
+  .header-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 24px 8px;
+  }
+  .brand-logo-round {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 10px rgba(201,168,76,0.45));
+    transition: filter 0.3s;
+  }
+  .brand-logo-round:hover {
+    filter: drop-shadow(0 0 18px rgba(201,168,76,0.75));
+  }
+  .brand-title-wrap {
+    text-align: center;
   }
 </style>
 </head>
 <body>
 
 <header class="site-header">
-  <div class="logo-tag">⬡ Prediksi Angka ⬡</div>
-  <h1 class="site-title">PREDIKSI<br>NAMATOTO</h1>
-  <p class="site-sub">Angka Jitu — Update Setiap Hari</p>
+  <div class="header-inner">
+    <img class="brand-logo-round"
+         src="data:image/png;base64,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"
+         alt="Logo NamaToto">
+    <div class="brand-title-wrap">
+      <div class="logo-tag">⬡ Prediksi Angka ⬡</div>
+      <h1 class="site-title">PREDIKSI<br>NAMATOTO</h1>
+      <p class="site-sub">Angka Jitu — Update Setiap Hari</p>
+    </div>
+  </div>
   <div class="live-clock" id="liveClock">00:00:00</div>
   <div class="live-date" id="liveDate">—</div>
 </header>
@@ -524,9 +578,17 @@ function seededRng(seed) {
 
 function generateNumbers(itemName, dateStr) {
   const rng = seededRng(dateStr + '|' + itemName);
+  // Shuffle 0-9, ambil 6 angka unik untuk BBFS
   const pool = [0,1,2,3,4,5,6,7,8,9].sort(() => rng() - 0.5);
   const bbfs = pool.slice(0, 6);
-  return { bbfs, d4: bbfs.slice(2), d3: bbfs.slice(3), d2: bbfs.slice(4) };
+  // 4D: ambil 4 angka ACAK dari bbfs (bukan slice berurut)
+  const bbfsCopy = [...bbfs].sort(() => rng() - 0.5);
+  const d4 = bbfsCopy.slice(0, 4);
+  // 3D: 3 digit belakang dari 4D
+  const d3 = d4.slice(1);
+  // 2D: 2 digit belakang dari 3D
+  const d2 = d3.slice(1);
+  return { bbfs, d4, d3, d2 };
 }
 
 function shouldShowNumbers(wib) {
@@ -546,16 +608,41 @@ function isGenerating(wib) {
 //   - Items already resulted (result time passed > 30 mins ago) → go to bottom, sorted by result time
 //   - "Resulted" means current time > result time + 30 minutes
 // ═══════════════════════════════════════════════════════════════════
-function getSortKey(item, curMins) {
-  // Convert result time to minutes, treating 00:00–05:59 as 24:00–29:59
+function getSortKey(item, cur) {
+  // cur = current WIB minutes (0–1439)
   const rMins = timeToMins(item.result);
-  const rAdj = rMins < 360 ? rMins + 1440 : rMins; // 00:00–05:59 → next day bucket
 
-  // Current time adjusted: if current is in 00:00–05:59, treat as 24:xx
-  const curAdj = curMins < 360 ? curMins + 1440 : curMins;
+  // LOGIKA BENAR:
+  // Setiap hari reset dari 00:00 WIB.
+  // "Done" = jam result sudah terlewati hari ini.
+  //
+  // Kasus khusus pasaran OVERNIGHT (result 00:00–05:59):
+  //   - Jika sekarang 00:00–05:59 DAN sudah lewat jam result → done
+  //   - Jika sekarang 06:00+ → pasaran overnight sudah result tadi malam → done
+  //   - Jika sekarang 00:00–05:59 DAN belum lewat jam result → upcoming
+  //
+  // Pasaran normal (result 06:00–23:59):
+  //   - Done jika cur >= rMins
+  //   - Upcoming jika cur < rMins
 
-  // Item is "done" if result time + 30 mins has passed
-  const isDone = curAdj > rAdj + 30;
+  let isDone = false;
+
+  if (rMins < 360) {
+    // Pasaran overnight
+    if (cur >= 360) {
+      // Sudah siang/malam — pasaran overnight tadi sudah result
+      isDone = true;
+    } else {
+      // Masih dini hari — done hanya jika sudah lewat jam resultnya
+      isDone = cur >= rMins;
+    }
+  } else {
+    // Pasaran normal — done jika jam sekarang sudah lewati jam result
+    isDone = cur >= rMins;
+  }
+
+  // rAdj untuk sorting: overnight dijadikan 1440+ agar muncul paling akhir di upcoming
+  const rAdj = rMins < 360 ? rMins + 1440 : rMins;
 
   return { isDone, rAdj };
 }
@@ -566,22 +653,28 @@ function getStatus(item, wib) {
   const resultM = timeToMins(item.result);
   const day = wib.getDay();
 
+  // Cek hari libur
   if (item.note) {
     if (item.note.includes('SELASA') && day === 2) return 'noplay';
     if (item.note.includes('JUMAT') && day === 5) return 'noplay';
     if (item.note.includes('MINGGU') && day === 0) return 'noplay';
   }
 
-  // Adjust for overnight items
+  // Pakai logika getSortKey untuk konsistensi isDone
+  const { isDone } = getSortKey(item, cur);
+  if (isDone) return 'done';
+
+  // Belum done — cek status menjelang result
+  // Untuk overnight items, bandingkan dengan adjustment
   const rAdj = resultM < 360 ? resultM + 1440 : resultM;
   const curAdj = cur < 360 ? cur + 1440 : cur;
-
-  if (curAdj > rAdj + 30) return 'done';
-  if (curAdj >= rAdj && curAdj <= rAdj + 30) return 'live';
-
   const tAdj = tutupM < 360 ? tutupM + 1440 : tutupM;
-  if (curAdj >= tAdj && curAdj < rAdj) return 'closed';
 
+  // 10 menit sebelum result = LIVE countdown
+  if (curAdj >= rAdj - 10 && curAdj < rAdj) return 'live';
+  // Setelah tutup, sebelum result = DITUTUP
+  if (curAdj >= tAdj && curAdj < rAdj) return 'closed';
+  // 15 menit sebelum tutup = SEGERA TUTUP
   const diff = tAdj - curAdj;
   if (diff >= 0 && diff <= 15) return 'soon';
 
