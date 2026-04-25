@@ -32,10 +32,16 @@
     font-family: 'Rajdhani', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
-    background-image:
-      radial-gradient(ellipse 80% 40% at 50% -10%, rgba(201,168,76,0.06) 0%, transparent 70%),
-      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(201,168,76,0.015) 60px, rgba(201,168,76,0.015) 61px),
-      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(201,168,76,0.015) 60px, rgba(201,168,76,0.015) 61px);
+    position: relative;
+  }
+
+  /* LIVE BACKGROUND CANVAS */
+  #liveBg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+    pointer-events: none;
   }
 
   /* HEADER */
@@ -466,10 +472,78 @@
   .brand-title-wrap {
     text-align: center;
   }
+
+  /* SEARCH BAR */
+  .search-wrap {
+    max-width: 760px;
+    margin: 20px auto 0;
+    padding: 0 16px;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(13,16,24,0.9);
+    border: 1px solid var(--border-bright);
+    border-radius: 4px;
+    padding: 10px 16px;
+    backdrop-filter: blur(8px);
+  }
+  .search-icon {
+    color: var(--gold-dim);
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    letter-spacing: 2px;
+  }
+  .search-input::placeholder {
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+  .search-clear {
+    background: none;
+    border: none;
+    color: var(--gold-dim);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+    display: none;
+    line-height: 1;
+  }
+  .search-clear.visible { display: block; }
+  .search-result-info {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dim);
+    letter-spacing: 2px;
+    text-align: center;
+    margin-top: 8px;
+    min-height: 16px;
+  }
+  .item-card.search-hidden { display: none; }
+  .no-result {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    padding: 40px 20px;
+    display: none;
+  }
+  .no-result.visible { display: block; }
 </style>
 </head>
 <body>
 
+<canvas id="liveBg"></canvas>
 <header class="site-header">
   <div class="header-inner">
     <img class="brand-logo-round"
@@ -493,8 +567,20 @@
   </div>
 </div>
 
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" id="searchInput" type="text"
+           placeholder="Cari pasaran... (contoh: SINGAPORE, JAKARTA)"
+           autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+  </div>
+  <div class="search-result-info" id="searchInfo"></div>
+</div>
+
 <main class="main">
   <div class="section-label" id="nextLabel">Jadwal Prediksi Hari Ini</div>
+  <div class="no-result" id="noResult">⊘ Pasaran tidak ditemukan</div>
   <div id="cardList"></div>
 </main>
 
@@ -872,6 +958,164 @@ render();
 updateClock();
 setInterval(updateClock, 1000);
 setInterval(render, 60000); // re-sort every minute
+
+// LIVE BACKGROUND
+(function() {
+  const canvas = document.getElementById('liveBg');
+  const ctx = canvas.getContext('2d');
+  const COLORS = [
+    {r:201,g:168,b:76},
+    {r:139,g:0,b:0},
+    {r:201,g:168,b:76},
+    {r:100,g:75,b:20},
+    {r:80,g:0,b:0},
+  ];
+  let W, H, particles;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function randRange(a, b) { return a + Math.random() * (b - a); }
+
+  function createParticle() {
+    const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+    return {
+      x: randRange(0, W), y: randRange(0, H),
+      r: randRange(1.5, 5),
+      dx: randRange(-0.3, 0.3), dy: randRange(-0.2, 0.2),
+      alpha: randRange(0.04, 0.18),
+      dAlpha: randRange(0.001, 0.003) * (Math.random() > 0.5 ? 1 : -1),
+      color: c,
+      pulse: randRange(0, Math.PI * 2),
+      pulseSpeed: randRange(0.005, 0.02),
+    };
+  }
+
+  function initParticles() {
+    const count = Math.min(Math.floor((W * H) / 14000), 80);
+    particles = Array.from({length: count}, createParticle);
+  }
+
+  function drawGrid() {
+    ctx.strokeStyle = 'rgba(201,168,76,0.025)';
+    ctx.lineWidth = 0.5;
+    for (let x = 0; x < W; x += 60) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 60) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  }
+
+  function drawGlow() {
+    const grd = ctx.createRadialGradient(W/2, 0, 0, W/2, 0, W*0.6);
+    grd.addColorStop(0, 'rgba(201,168,76,0.07)');
+    grd.addColorStop(0.5, 'rgba(139,0,0,0.03)');
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function drawConnections() {
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i+1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          const alpha = (1 - dist/120) * 0.06;
+          const c = particles[i].color;
+          ctx.strokeStyle = 'rgba('+c.r+','+c.g+','+c.b+','+alpha+')';
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#080A0F';
+    ctx.fillRect(0, 0, W, H);
+    drawGrid();
+    drawGlow();
+    drawConnections();
+    particles.forEach(function(p) {
+      p.pulse += p.pulseSpeed;
+      const pa = p.alpha + Math.sin(p.pulse) * 0.04;
+      const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*3);
+      grd.addColorStop(0, 'rgba('+p.color.r+','+p.color.g+','+p.color.b+','+(Math.min(pa*2,0.4))+')');
+      grd.addColorStop(0.5, 'rgba('+p.color.r+','+p.color.g+','+p.color.b+','+pa+')');
+      grd.addColorStop(1, 'rgba('+p.color.r+','+p.color.g+','+p.color.b+',0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r*3, 0, Math.PI*2);
+      ctx.fill();
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0 || p.x > W) p.dx *= -1;
+      if (p.y < 0 || p.y > H) p.dy *= -1;
+      p.alpha += p.dAlpha;
+      if (p.alpha > 0.2 || p.alpha < 0.03) p.dAlpha *= -1;
+    });
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', function() { resize(); initParticles(); });
+  resize(); initParticles(); animate();
+})();
+
+// SEARCH
+var searchInput = document.getElementById('searchInput');
+var searchClear = document.getElementById('searchClear');
+var searchInfo  = document.getElementById('searchInfo');
+var noResult    = document.getElementById('noResult');
+
+function doSearch() {
+  var q = searchInput.value.trim().toLowerCase();
+  if (q.length > 0) searchClear.classList.add('visible');
+  else searchClear.classList.remove('visible');
+
+  var cards = document.querySelectorAll('.item-card');
+  var visible = 0;
+  cards.forEach(function(card) {
+    var nameEl = card.querySelector('.item-name');
+    var name = nameEl ? nameEl.textContent.toLowerCase() : '';
+    var match = !q || name.includes(q);
+    if (match) { card.classList.remove('search-hidden'); visible++; }
+    else card.classList.add('search-hidden');
+  });
+
+  var divider = document.querySelector('.done-divider');
+  if (divider) {
+    var doneVisible = document.querySelectorAll('.item-card.done:not(.search-hidden)').length;
+    divider.style.display = (doneVisible > 0 || !q) ? '' : 'none';
+  }
+
+  if (q) {
+    searchInfo.textContent = visible > 0 ? (visible + ' pasaran ditemukan') : '';
+    if (visible === 0) noResult.classList.add('visible');
+    else noResult.classList.remove('visible');
+  } else {
+    searchInfo.textContent = '';
+    noResult.classList.remove('visible');
+  }
+}
+
+function clearSearch() {
+  searchInput.value = '';
+  searchClear.classList.remove('visible');
+  searchInfo.textContent = '';
+  noResult.classList.remove('visible');
+  document.querySelectorAll('.item-card').forEach(function(c) { c.classList.remove('search-hidden'); });
+  var divider = document.querySelector('.done-divider');
+  if (divider) divider.style.display = '';
+  searchInput.focus();
+}
+
+searchInput.addEventListener('input', doSearch);
+searchInput.addEventListener('keydown', function(e) { if (e.key === 'Escape') clearSearch(); });
+
 </script>
 </body>
 </html>
