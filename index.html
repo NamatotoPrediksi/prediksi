@@ -100,11 +100,16 @@
     background: linear-gradient(90deg, transparent, rgba(201,168,76,0.06), transparent);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    padding: 10px 20px;
+    padding: 10px 0;
     font-family: 'Share Tech Mono', monospace;
     font-size: 11px;
     color: var(--gold-dim);
     letter-spacing: 2px;
+  }
+  .top-notice .notice-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -481,9 +486,11 @@
 </header>
 
 <div class="top-notice">
-  <span class="bolt">⚡</span>
-  <span class="notice-text">Angka tampil otomatis pukul 00:06 WIB &nbsp;·&nbsp; Dikunci pukul 23:50 WIB</span>
-  <span class="bolt">⚡</span>
+  <div class="notice-inner">
+    <span class="bolt">⚡</span>
+    <span class="notice-text">Angka tampil otomatis pukul 00:06 WIB &nbsp;·&nbsp; Dikunci pukul 23:50 WIB</span>
+    <span class="bolt">⚡</span>
+  </div>
 </div>
 
 <main class="main">
