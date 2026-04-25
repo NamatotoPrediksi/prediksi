@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PREDIKSI PREMIUM — Angka Jitu Hari Ini</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #F0D080;
+    --gold-dim: #7A6530;
+    --dark: #080A0F;
+    --dark2: #0D1018;
+    --dark3: #12151E;
+    --dark4: #181C28;
+    --border: rgba(201,168,76,0.18);
+    --border-bright: rgba(201,168,76,0.45);
+    --text: #D4C9A8;
+    --text-dim: #6B6355;
+    --red: #E03A3A;
+    --green: #2ECC71;
+    --blue: #4A9EFF;
+    --cyan: #00D4FF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse 80% 40% at 50% -10%, rgba(201,168,76,0.06) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(201,168,76,0.015) 60px, rgba(201,168,76,0.015) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(201,168,76,0.015) 60px, rgba(201,168,76,0.015) 61px);
+  }
+
+  /* HEADER */
+  .site-header {
+    text-align: center;
+    padding: 48px 20px 32px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(201,168,76,0.05) 0%, transparent 100%);
+  }
+
+  .site-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 300px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .logo-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .site-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold-dim) 0%, var(--gold-light) 45%, var(--gold) 70%, var(--gold-dim) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 4px;
+    line-height: 1.1;
+    text-shadow: none;
+  }
+
+  .site-sub {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+
+  .live-clock {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 28px;
+    color: var(--gold);
+    margin-top: 20px;
+    letter-spacing: 4px;
+  }
+
+  .live-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--gold-dim);
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+
+  /* MAIN */
+  .main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 16px 80px;
+  }
+
+  /* CARD */
+  .item-card {
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    position: relative;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .item-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .item-card:hover {
+    border-color: var(--border-bright);
+    box-shadow: 0 0 24px rgba(201,168,76,0.06);
+  }
+
+  .item-card:hover::before { opacity: 1; }
+
+  /* CARD HEADER */
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(201,168,76,0.03);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .item-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .item-flag {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .item-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .item-rank {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dim);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  .time-wrap {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .time-block {
+    text-align: center;
+  }
+
+  .time-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .time-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: var(--text);
+    letter-spacing: 1px;
+  }
+
+  .time-separator {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+  }
+
+  /* STATUS BADGE */
+  .status-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 3px 10px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+
+  .status-live {
+    color: var(--green);
+    border-color: rgba(46,204,113,0.4);
+    background: rgba(46,204,113,0.08);
+    animation: pulse-green 2s ease-in-out infinite;
+  }
+
+  .status-soon {
+    color: var(--gold);
+    border-color: rgba(201,168,76,0.4);
+    background: rgba(201,168,76,0.08);
+    animation: pulse-gold 2s ease-in-out infinite;
+  }
+
+  .status-closed {
+    color: var(--red);
+    border-color: rgba(224,58,58,0.4);
+    background: rgba(224,58,58,0.08);
+  }
+
+  .status-noplay {
+    color: var(--text-dim);
+    border-color: rgba(107,99,85,0.4);
+    background: rgba(107,99,85,0.08);
+  }
+
+  @keyframes pulse-green {
+    0%,100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+    50% { box-shadow: 0 0 8px 2px rgba(46,204,113,0.15); }
+  }
+  @keyframes pulse-gold {
+    0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+    50% { box-shadow: 0 0 8px 2px rgba(201,168,76,0.15); }
+  }
+
+  /* NUMBERS GRID */
+  .numbers-body {
+    padding: 16px 20px 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .num-block {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .num-block::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    opacity: 0.4;
+  }
+
+  .num-block.bbfs-block {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--dark3), var(--dark4));
+    border-color: var(--border-bright);
+  }
+
+  .num-type {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .num-type::before {
+    content: '';
+    display: inline-block;
+    width: 14px; height: 1px;
+    background: var(--gold-dim);
+  }
+
+  .num-digits {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 6px;
+    line-height: 1;
+  }
+
+  .num-digits.hidden-num {
+    filter: blur(6px);
+    opacity: 0.5;
+    user-select: none;
+  }
+
+  .num-digits.loading-num {
+    color: var(--gold-dim);
+    animation: flicker 0.15s infinite;
+  }
+
+  @keyframes flicker {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .bbfs-block .num-digits {
+    font-size: 26px;
+    color: var(--gold);
+    letter-spacing: 10px;
+  }
+
+  /* HIDDEN OVERLAY */
+  .hidden-overlay {
+    position: relative;
+  }
+
+  .lock-info {
+    display: block;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-top: 6px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* SPECIAL NOTE */
+  .special-note {
+    font-size: 10px;
+    color: var(--red);
+    letter-spacing: 1px;
+    padding: 6px 20px 10px;
+    font-family: 'Share Tech Mono', monospace;
+    border-top: 1px solid rgba(224,58,58,0.15);
+    background: rgba(224,58,58,0.04);
+  }
+
+  /* FOOTER */
+  .site-footer {
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* SECTION DIVIDER */
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    text-align: center;
+    margin: 28px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::before,
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-bright));
+  }
+
+  .section-label::after {
+    background: linear-gradient(90deg, var(--border-bright), transparent);
+  }
+
+  /* COUNTDOWN */
+  .countdown-wrap {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--gold-dim);
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+
+  /* TOP NOTICE */
+  .top-notice {
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.06), transparent);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--gold-dim);
+    letter-spacing: 2px;
+  }
+
+  /* Responsive */
+  @media(max-width: 480px) {
+    .card-header { flex-direction: column; align-items: flex-start; }
+    .time-wrap { flex-wrap: wrap; }
+    .num-digits { font-size: 18px; letter-spacing: 4px; }
+    .bbfs-block .num-digits { font-size: 20px; letter-spacing: 6px; }
+    .numbers-body { grid-template-columns: 1fr; }
+    .num-block.bbfs-block { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo-tag">⬡ Sistem Prediksi Angka ⬡</div>
+  <h1 class="site-title">PREDIKSI<br>PREMIUM</h1>
+  <p class="site-sub">Angka Jitu — Update Otomatis Setiap Hari</p>
+  <div class="live-clock" id="liveClock">00:00:00</div>
+  <div class="live-date" id="liveDate">—</div>
+</header>
+
+<div class="top-notice">
+  ⚡ Angka tampil otomatis pukul 00:06 WIB &nbsp;·&nbsp; Dikunci pukul 23:50 WIB ⚡
+</div>
+
+<main class="main" id="mainContent"></main>
+
+<footer class="site-footer">
+  © PREDIKSI PREMIUM &nbsp;·&nbsp; UPDATE OTOMATIS SETIAP HARI &nbsp;·&nbsp; ALL RIGHTS RESERVED
+</footer>
+
+<script>
+// ─── DATA ITEMS (sorted by result time) ───────────────────────────────────
+const ITEMS = [
+  { name: "BERLIN",                flag: "🇩🇪", tutup: "23:30", result: "00:00", note: null },
+  { name: "TOTOMACAU",             flag: "🎰", tutup: "23:45", result: "00:05", note: null },
+  { name: "KENTUCKY MID",          flag: "🇺🇸", tutup: "00:01", result: "00:20", note: null },
+  { name: "TEXAS DAY",             flag: "🇺🇸", tutup: "00:15", result: "00:27", note: null },
+  { name: "FLORIDA MID",           flag: "🇺🇸", tutup: "00:15", result: "00:30", note: null },
+  { name: "BOGOTA",                flag: "🇨🇴", tutup: "00:20", result: "00:30", note: null },
+  { name: "VIRGINIA",              flag: "🇺🇸", tutup: "00:45", result: "01:00", note: null },
+  { name: "DENVER",                flag: "🇺🇸", tutup: "01:00", result: "01:20", note: null },
+  { name: "NEWYORK MID",           flag: "🇺🇸", tutup: "01:15", result: "01:30", note: null },
+  { name: "CAROLINA",              flag: "🇺🇸", tutup: "01:45", result: "02:00", note: null },
+  { name: "OREGON 03",             flag: "🇺🇸", tutup: "02:45", result: "03:00", note: null },
+  { name: "SAKURAI MORNING",       flag: "🇯🇵", tutup: "03:00", result: "03:15", note: null },
+  { name: "OREGON 06",             flag: "🇺🇸", tutup: "05:45", result: "06:00", note: null },
+  { name: "TEXAS EVENING",         flag: "🇺🇸", tutup: "05:45", result: "06:01", note: null },
+  { name: "CALIFORNIA",            flag: "🇺🇸", tutup: "08:20", result: "08:45", note: null },
+  { name: "FLORIDA EVENING",       flag: "🇺🇸", tutup: "08:35", result: "08:45", note: null },
+  { name: "OREGON 09",             flag: "🇺🇸", tutup: "08:50", result: "09:00", note: null },
+  { name: "NEWYORK EVENING",       flag: "🇺🇸", tutup: "09:15", result: "09:30", note: null },
+  { name: "MILAN MORNING",         flag: "🇮🇹", tutup: "09:40", result: "10:00", note: null },
+  { name: "KENTUCKY EVENING",      flag: "🇺🇸", tutup: "09:45", result: "10:00", note: null },
+  { name: "VIRGINIA NIGHT",        flag: "🇺🇸", tutup: "09:45", result: "10:00", note: null },
+  { name: "TEXAS NIGHT",           flag: "🇺🇸", tutup: "09:55", result: "10:20", note: null },
+  { name: "CAROLINA EVENING",      flag: "🇺🇸", tutup: "10:10", result: "10:25", note: null },
+  { name: "MARSEILLIE",            flag: "🇫🇷", tutup: "10:25", result: "10:47", note: null },
+  { name: "BULLSEYE",              flag: "🎯", tutup: "11:30", result: "12:15", note: null },
+  { name: "CAMBODIA",              flag: "🇰🇭", tutup: "11:25", result: "11:50", note: null },
+  { name: "OREGON 12",             flag: "🇺🇸", tutup: "11:45", result: "12:00", note: null },
+  { name: "MATSUDO",               flag: "🇯🇵", tutup: "12:30", result: "12:58", note: null },
+  { name: "TOTOMACAU (SIANG)",     flag: "🎰", tutup: "13:00", result: "13:05", note: null },
+  { name: "SYDNEY LOTTO",          flag: "🇦🇺", tutup: "13:49", result: "13:50", note: null },
+  { name: "PALERMO",               flag: "🇮🇹", tutup: "14:20", result: "14:45", note: null },
+  { name: "TOTOMACAU 5D PERIODE I",flag: "🎰", tutup: "15:15", result: "15:25", note: null },
+  { name: "CHINA",                 flag: "🇨🇳", tutup: "15:15", result: "15:30", note: null },
+  { name: "TOTOMACAU (SORE)",      flag: "🎰", tutup: "16:00", result: "16:15", note: null },
+  { name: "VIETNAM",               flag: "🇻🇳", tutup: "16:40", result: "17:00", note: null },
+  { name: "JAPAN",                 flag: "🇯🇵", tutup: "16:55", result: "17:20", note: null },
+  { name: "KINGKONG",              flag: "🦍", tutup: "17:00", result: "17:10", note: null },
+  { name: "SINGAPORE",             flag: "🇸🇬", tutup: "17:25", result: "17:45", note: "⚠ SELASA & JUMAT TIDAK RESULT" },
+  { name: "NAIROBI",               flag: "🇰🇪", tutup: "18:40", result: "19:00", note: null },
+  { name: "PCSO",                  flag: "🇵🇭", tutup: "19:45", result: "20:20", note: "⚠ MINGGU TIDAK RESULT" },
+  { name: "TAIWAN",                flag: "🇹🇼", tutup: "20:30", result: "20:45", note: null },
+  { name: "NEVADA",                flag: "🇺🇸", tutup: "21:00", result: "21:30", note: null },
+  { name: "TOTOMACAU 5D PERIODE II",flag:"🎰", tutup: "21:15", result: "21:25", note: null },
+  { name: "MILAN NIGHT",           flag: "🇮🇹", tutup: "21:45", result: "22:00", note: null },
+  { name: "TEXAS MORNING",         flag: "🇺🇸", tutup: "21:45", result: "22:01", note: null },
+  { name: "TOTOMACAU (MALAM)",     flag: "🎰", tutup: "22:00", result: "22:15", note: null },
+  { name: "HONGKONG LOTTO",        flag: "🇭🇰", tutup: "22:59", result: "23:00", note: null },
+  { name: "TOTOMACAU (TENGAH MALAM)",flag:"🎰",tutup: "23:00", result: "23:15", note: null },
+  { name: "JAKARTA",               flag: "🇮🇩", tutup: "23:25", result: "23:35", note: null },
+  { name: "SAKURAI NIGHT",         flag: "🇯🇵", tutup: "23:30", result: "23:45", note: null },
+];
+
+// Sort by result time (treating 00:xx–05:xx as next day for display logic)
+ITEMS.sort((a, b) => {
+  const toMins = t => {
+    const [h, m] = t.split(':').map(Number);
+    // treat 00–05 as 24–29 hours for sorting
+    return (h < 6 ? h + 24 : h) * 60 + m;
+  };
+  return toMins(a.result) - toMins(b.result);
+});
+
+// ─── SEEDED RNG (seed = date string, index) ──────────────────────────────
+function seededRng(seed) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return function() {
+    h ^= h << 13; h ^= h >> 17; h ^= h << 5;
+    h = h >>> 0;
+    return h / 4294967296;
+  };
+}
+
+function generateNumbers(itemName, dateStr) {
+  const seed = dateStr + '|' + itemName;
+  const rng = seededRng(seed);
+  // Generate 6 unique digits 0-9 for BBFS
+  const pool = [0,1,2,3,4,5,6,7,8,9];
+  const shuffled = pool.sort(() => rng() - 0.5);
+  const bbfs = shuffled.slice(0, 6);
+  const d4 = bbfs.slice(2, 6); // last 4 of bbfs
+  const d3 = bbfs.slice(3, 6); // last 3
+  const d2 = bbfs.slice(4, 6); // last 2
+  return { bbfs, d4, d3, d2 };
+}
+
+// ─── TIME HELPERS ────────────────────────────────────────────────────────
+function getNowWIB() {
+  // WIB = UTC+7
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  return new Date(utc + 7 * 3600000);
+}
+
+function timeToMins(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function nowMins(wibNow) {
+  return wibNow.getHours() * 60 + wibNow.getMinutes();
+}
+
+function getDateStr(wibNow) {
+  const y = wibNow.getFullYear();
+  const m = String(wibNow.getMonth() + 1).padStart(2, '0');
+  const d = String(wibNow.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// Decide if numbers should show based on WIB time
+// Numbers HIDDEN from 23:50 to 00:05 (generating window)
+// Numbers SHOWN from 00:06 onwards
+function shouldShowNumbers(wibNow) {
+  const h = wibNow.getHours();
+  const m = wibNow.getMinutes();
+  const totalMin = h * 60 + m;
+  // 23:50 = 1430, 00:05 = 5 (next day)
+  return !(totalMin >= 1430 || totalMin <= 5);
+}
+
+function isGenerating(wibNow) {
+  const h = wibNow.getHours();
+  const m = wibNow.getMinutes();
+  const totalMin = h * 60 + m;
+  return totalMin >= 1430 || totalMin <= 5;
+}
+
+// Item status based on current WIB time vs tutup/result times
+function getStatus(item, wibNow) {
+  const cur = nowMins(wibNow);
+  const tutupM = timeToMins(item.tutup);
+  const resultM = timeToMins(item.result);
+
+  // Check if today has no result (note field)
+  const day = wibNow.getDay(); // 0=Sun, 1=Mon, 2=Tue, 5=Fri
+  if (item.note) {
+    if (item.note.includes('SELASA') && day === 2) return 'noplay';
+    if (item.note.includes('JUMAT') && day === 5) return 'noplay';
+    if (item.note.includes('MINGGU') && day === 0) return 'noplay';
+  }
+
+  // Within 15 mins before tutup = "Segera Tutup"
+  const diff = tutupM - cur;
+  if (diff >= 0 && diff <= 15) return 'soon';
+  // After tutup, before result = "Ditutup"
+  if (cur >= tutupM && cur < resultM) return 'closed';
+  // Within 10 mins after result = "Live Result"
+  if (cur >= resultM && cur <= resultM + 10) return 'live';
+  // Default = open
+  return 'open';
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────
+function formatDigits(arr) {
+  return arr.join(' ');
+}
+
+function buildCard(item, idx, wibNow) {
+  const show = shouldShowNumbers(wibNow);
+  const generating = isGenerating(wibNow);
+  const dateStr = getDateStr(wibNow);
+  const nums = generateNumbers(item.name, dateStr);
+  const status = getStatus(item, wibNow);
+
+  let statusHtml = '';
+  if (status === 'live') statusHtml = `<span class="status-badge status-live">● LIVE RESULT</span>`;
+  else if (status === 'soon') statusHtml = `<span class="status-badge status-soon">⚡ SEGERA TUTUP</span>`;
+  else if (status === 'closed') statusHtml = `<span class="status-badge status-closed">✕ DITUTUP</span>`;
+  else if (status === 'noplay') statusHtml = `<span class="status-badge status-noplay">— TIDAK RESULT</span>`;
+  else statusHtml = `<span class="status-badge" style="color:var(--gold-dim);border-color:var(--border);background:transparent">○ BUKA</span>`;
+
+  let numClass = '';
+  let lockHtml = '';
+  if (!show && generating) {
+    numClass = 'loading-num';
+    lockHtml = `<span class="lock-info">⟳ Generating angka baru...</span>`;
+  } else if (!show) {
+    numClass = 'hidden-num';
+    lockHtml = `<span class="lock-info">🔒 Terkunci hingga 00:06 WIB</span>`;
+  }
+
+  const bbfsStr = show ? formatDigits(nums.bbfs) : (generating ? '? ? ? ? ? ?' : '× × × × × ×');
+  const d4Str   = show ? formatDigits(nums.d4)   : (generating ? '? ? ? ?' : '× × × ×');
+  const d3Str   = show ? formatDigits(nums.d3)   : (generating ? '? ? ?' : '× × ×');
+  const d2Str   = show ? formatDigits(nums.d2)   : (generating ? '? ?' : '× ×');
+
+  const noteHtml = item.note ? `<div class="special-note">${item.note}</div>` : '';
+
+  return `
+  <div class="item-card" id="card-${idx}">
+    <div class="card-header">
+      <div class="item-name-wrap">
+        <span class="item-flag">${item.flag}</span>
+        <div>
+          <div class="item-name">${item.name}</div>
+          <div class="item-rank">#${String(idx+1).padStart(2,'0')} · Result ${item.result} WIB</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="time-wrap">
+          <div class="time-block">
+            <span class="time-label">Tutup</span>
+            <span class="time-value">${item.tutup}</span>
+          </div>
+          <div class="time-separator"></div>
+          <div class="time-block">
+            <span class="time-label">Result</span>
+            <span class="time-value">${item.result}</span>
+          </div>
+        </div>
+        ${statusHtml}
+      </div>
+    </div>
+    <div class="numbers-body">
+      <div class="num-block bbfs-block">
+        <div class="num-type">BBFS · 6 Digit</div>
+        <div class="hidden-overlay">
+          <div class="num-digits ${numClass}">${bbfsStr}</div>
+          ${lockHtml}
+        </div>
+      </div>
+      <div class="num-block">
+        <div class="num-type">4D</div>
+        <div class="num-digits ${numClass}">${d4Str}</div>
+      </div>
+      <div class="num-block">
+        <div class="num-type">3D</div>
+        <div class="num-digits ${numClass}">${d3Str}</div>
+      </div>
+      <div class="num-block" style="grid-column:1/-1">
+        <div class="num-type">2D</div>
+        <div class="num-digits ${numClass}">${d2Str}</div>
+      </div>
+    </div>
+    ${noteHtml}
+  </div>`;
+}
+
+function render() {
+  const wibNow = getNowWIB();
+  const container = document.getElementById('mainContent');
+
+  let html = `<div class="section-label">Jadwal Prediksi Hari Ini</div>`;
+  ITEMS.forEach((item, i) => {
+    html += buildCard(item, i, wibNow);
+  });
+  container.innerHTML = html;
+}
+
+// ─── CLOCK ───────────────────────────────────────────────────────────────
+const DAYS = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+
+function updateClock() {
+  const wib = getNowWIB();
+  const h = String(wib.getHours()).padStart(2,'0');
+  const m = String(wib.getMinutes()).padStart(2,'0');
+  const s = String(wib.getSeconds()).padStart(2,'0');
+  document.getElementById('liveClock').textContent = `${h}:${m}:${s}`;
+  document.getElementById('liveDate').textContent =
+    `${DAYS[wib.getDay()]}, ${wib.getDate()} ${MONTHS[wib.getMonth()]} ${wib.getFullYear()} · WIB`;
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────
+render();
+updateClock();
+setInterval(updateClock, 1000);
+// Re-render every minute to update statuses
+setInterval(render, 60000);
+</script>
+</body>
+</html>
