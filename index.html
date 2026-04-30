@@ -572,6 +572,21 @@
   .item-card.visible { opacity: 1; transform: translateY(0); }
   .item-card.done.visible { opacity: 0.55; }
 
+
+  /* BATCH RENDER */
+  .batch-hidden { display: none !important; }
+  .load-more-btn {
+    display: block; width: 100%; max-width: 760px;
+    margin: 12px auto 20px; padding: 14px;
+    background: var(--dark2); border: 1px solid var(--border-bright);
+    border-radius: 4px; color: var(--gold); cursor: pointer;
+    font-family: 'Share Tech Mono', monospace; font-size: 12px;
+    letter-spacing: 3px; text-transform: uppercase; text-align: center;
+    transition: background .2s, box-shadow .2s;
+  }
+  .load-more-btn:hover { background: rgba(201,168,76,0.08); box-shadow: 0 0 16px rgba(201,168,76,0.1); }
+  .load-more-btn.hidden { display: none !important; }
+
 </style>
 </head>
 <body>
@@ -622,6 +637,7 @@
   <div class="section-label" id="nextLabel">Jadwal Prediksi Hari Ini</div>
   <div class="no-result" id="noResult">⊘ Pasaran tidak ditemukan</div>
   <div id="cardList"></div>
+  <button class="load-more-btn hidden" id="loadMoreBtn" onclick="loadMoreCards()">↓ Memuat lebih banyak...</button>
 </main>
 
 <footer class="site-footer">
@@ -1004,7 +1020,20 @@ function updateClock() {
 render();
 updateClock();
 setInterval(updateClock, 1000);
-setInterval(render, 60000); // re-sort every minute
+// Re-sort every minute, then re-apply batch
+setInterval(function() {
+  render();
+  // Re-apply batch after re-render
+  setTimeout(function() {
+    var all = document.querySelectorAll('#cardList .item-card');
+    all.forEach(function(c, i) {
+      if (i < _batchSize) c.classList.remove('batch-hidden');
+      else c.classList.add('batch-hidden');
+    });
+    _batchRendered = Math.min(_batchSize, all.length);
+    updateLoadMore();
+  }, 50);
+}, 60000);
 
 // LIVE BACKGROUND
 (function() {
@@ -1167,12 +1196,6 @@ searchInput.addEventListener('keydown', function(e) { if (e.key === 'Escape') cl
 // ── BATCH LAZY RENDER ──────────────────────────────────
 // Render cards in batches as user scrolls
 var _lazyObserver = null;
-function initLazyCards() {
-  if (!('IntersectionObserver' in window)) {
-    // Fallback: show all immediately
-    document.querySelectorAll('.item-card').forEach(function(c){ c.classList.add('visible'); });
-    return;
-  }
   _lazyObserver = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) {
@@ -1191,12 +1214,6 @@ setTimeout(initLazyCards, 200);
 // ── BATCH LAZY RENDER ──────────────────────────────────
 // Render cards in batches as user scrolls
 var _lazyObserver = null;
-function initLazyCards() {
-  if (!('IntersectionObserver' in window)) {
-    // Fallback: show all immediately
-    document.querySelectorAll('.item-card').forEach(function(c){ c.classList.add('visible'); });
-    return;
-  }
   _lazyObserver = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) {
@@ -1237,6 +1254,56 @@ function initLazyCards() {
   style.textContent = '.num-digits,.bbfs-block,.slide-nominal,.slide-pemenang-id{user-select:none;-webkit-user-select:none;}';
   document.head.appendChild(style);
 })();
+
+
+// ════════════════════════════════════════
+// TRUE BATCH LOADING
+// Only render BATCH_SIZE cards at a time
+// ════════════════════════════════════════
+var _batchSize = 8;
+var _batchRendered = 0;
+
+function applyBatch() {
+  var all = document.querySelectorAll('#cardList .item-card');
+  if (!all.length) return;
+  all.forEach(function(c, i) {
+    if (i < _batchSize) c.classList.remove('batch-hidden');
+    else c.classList.add('batch-hidden');
+  });
+  _batchRendered = Math.min(_batchSize, all.length);
+  updateLoadMore();
+}
+
+function loadMoreCards() {
+  var all = document.querySelectorAll('#cardList .item-card');
+  var next = _batchRendered + _batchSize;
+  all.forEach(function(c, i) {
+    if (i < next) c.classList.remove('batch-hidden');
+  });
+  _batchRendered = Math.min(next, all.length);
+  updateLoadMore();
+  // Smooth scroll hint
+  var btn = document.getElementById('loadMoreBtn');
+  if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function updateLoadMore() {
+  var all = document.querySelectorAll('#cardList .item-card');
+  var btn = document.getElementById('loadMoreBtn');
+  if (!btn) return;
+  var remaining = all.length - _batchRendered;
+  if (remaining <= 0) {
+    btn.classList.add('hidden');
+  } else {
+    btn.classList.remove('hidden');
+    btn.textContent = '↓ Memuat lebih banyak... (' + remaining + ' pasaran tersisa)';
+  }
+}
+
+// Init batch after first render
+setTimeout(function() {
+  applyBatch();
+}, 100);
 
 </script>
 </body>
