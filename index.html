@@ -573,19 +573,11 @@
   .item-card.done.visible { opacity: 0.55; }
 
 
-  /* BATCH RENDER */
-  .batch-hidden { display: none !important; }
-  .load-more-wrap { max-width: 760px; margin: 0 auto; padding: 0 16px 20px; }
-  .load-more-btn {
-    display: block; width: 100%; padding: 14px;
-    background: var(--dark2); border: 1px solid var(--border-bright);
-    border-radius: 4px; color: var(--gold); cursor: pointer;
-    font-family: 'Share Tech Mono', monospace; font-size: 12px;
-    letter-spacing: 3px; text-transform: uppercase; text-align: center;
-    transition: background .2s, box-shadow .2s;
-  }
-  .load-more-btn:hover { background: rgba(201,168,76,0.08); box-shadow: 0 0 16px rgba(201,168,76,0.08); }
-  .load-more-btn.lm-hidden { display: none !important; }
+  /* BATCH */
+  .batch-hidden{display:none!important}
+  .lmbtn{display:block;width:100%;max-width:760px;margin:12px auto 20px;padding:14px;background:var(--dark2);border:1px solid var(--border-bright);border-radius:4px;color:var(--gold);cursor:pointer;font-family:"Share Tech Mono",monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;text-align:center;transition:background .2s}
+  .lmbtn:hover{background:rgba(201,168,76,0.08)}
+  .lmbtn.lmhide{display:none!important}
 </style>
 </head>
 <body>
@@ -636,7 +628,7 @@
   <div class="section-label" id="nextLabel">Jadwal Prediksi Hari Ini</div>
   <div class="no-result" id="noResult">⊘ Pasaran tidak ditemukan</div>
   <div id="cardList"></div>
-<div class="load-more-wrap"><button class="load-more-btn lm-hidden" id="loadMoreBtn" onclick="loadMoreCards()">↓ Memuat lebih banyak...</button></div>
+<button class="lmbtn lmhide" id="lmBtn" onclick="loadMore()">↓ Memuat lebih banyak...</button>
 </main>
 
 <footer class="site-footer">
@@ -1019,11 +1011,7 @@ function updateClock() {
 render();
 updateClock();
 setInterval(updateClock, 1000);
-// Re-sort every minute + re-apply batch
-setInterval(function() {
-  render();
-  setTimeout(applyBatch, 80);
-}, 60000);
+setInterval(function(){render();setTimeout(batchInit,80);},60000);
 
 // LIVE BACKGROUND
 (function() {
@@ -1183,6 +1171,15 @@ searchInput.addEventListener('input', doSearch);
 searchInput.addEventListener('keydown', function(e) { if (e.key === 'Escape') clearSearch(); });
 
 
+// ── BATCH LAZY RENDER ──────────────────────────────────
+// Render cards in batches as user scrolls
+var _lazyObserver = null;
+function initLazyCards() {
+  if (!('IntersectionObserver' in window)) {
+    // Fallback: show all immediately
+    document.querySelectorAll('.item-card').forEach(function(c){ c.classList.add('visible'); });
+    return;
+  }
   _lazyObserver = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) {
@@ -1198,6 +1195,15 @@ searchInput.addEventListener('keydown', function(e) { if (e.key === 'Escape') cl
 
 setTimeout(initLazyCards, 200);
 
+// ── BATCH LAZY RENDER ──────────────────────────────────
+// Render cards in batches as user scrolls
+var _lazyObserver = null;
+function initLazyCards() {
+  if (!('IntersectionObserver' in window)) {
+    // Fallback: show all immediately
+    document.querySelectorAll('.item-card').forEach(function(c){ c.classList.add('visible'); });
+    return;
+  }
   _lazyObserver = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) {
@@ -1212,61 +1218,51 @@ setTimeout(initLazyCards, 200);
 }
 
 
-
-
-// ═══════════════════════════════════════
-// BATCH LOADING — render 8 at a time
-// ═══════════════════════════════════════
-var _BATCH = 8;
-var _shown = 0;
-
-function applyBatch() {
-  var all = document.querySelectorAll('#cardList .item-card');
-  if (!all.length) return;
-  all.forEach(function(c, i) {
-    i < _BATCH ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+// ── PROTEKSI SCRIPT ─────────────────────────────────────
+(function(){
+  // 1. Disable right click
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  
+  // 2. Disable F12, Ctrl+Shift+I/J/U, Ctrl+U
+  document.addEventListener('keydown', function(e){
+    if(e.key==='F12') e.preventDefault();
+    if(e.ctrlKey && e.shiftKey && (e.key==='I'||e.key==='J'||e.key==='C')) e.preventDefault();
+    if(e.ctrlKey && e.key==='u') e.preventDefault();
+    if(e.ctrlKey && e.key==='s') e.preventDefault();
   });
-  _shown = Math.min(_BATCH, all.length);
-  _refreshBtn();
-}
-
-function loadMoreCards() {
-  var all = document.querySelectorAll('#cardList .item-card');
-  var next = _shown + _BATCH;
-  all.forEach(function(c, i) { if (i < next) c.classList.remove('batch-hidden'); });
-  _shown = Math.min(next, all.length);
-  _refreshBtn();
-}
-
-function _refreshBtn() {
-  var btn = document.getElementById('loadMoreBtn');
-  if (!btn) return;
-  var rem = document.querySelectorAll('#cardList .item-card').length - _shown;
-  if (rem <= 0) { btn.classList.add('lm-hidden'); }
-  else { btn.classList.remove('lm-hidden'); btn.textContent = '↓ Memuat lebih banyak... (' + rem + ' tersisa)'; }
-}
-
-setTimeout(applyBatch, 150);
-
-// ═══════════════════════════════════════
-// PROTEKSI SCRIPT (safe version)
-// ═══════════════════════════════════════
-(function() {
-  // Disable right click
-  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-  // Disable devtools shortcuts
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'F12') { e.preventDefault(); return false; }
-    if (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) { e.preventDefault(); return false; }
-    if (e.ctrlKey && e.key === 'u') { e.preventDefault(); return false; }
-    if (e.ctrlKey && e.key === 's') { e.preventDefault(); return false; }
-  });
-  // Disable text selection on numbers
-  var s = document.createElement('style');
-  s.textContent = '.num-digits, .bbfs-block { user-select: none; -webkit-user-select: none; }';
-  document.head.appendChild(s);
+  // 4. Disable text selection on number elements
+  var style = document.createElement('style');
+  style.textContent = '.num-digits,.bbfs-block,.slide-nominal,.slide-pemenang-id{user-select:none;-webkit-user-select:none;}';
+  document.head.appendChild(style);
 })();
 
+
+var _B=8,_S=0;
+function batchInit(){
+  var a=document.querySelectorAll('#cardList .item-card');
+  if(!a.length)return;
+  a.forEach(function(c,i){i<_B?c.classList.remove('batch-hidden'):c.classList.add('batch-hidden');});
+  _S=Math.min(_B,a.length);batchBtn();
+}
+function loadMore(){
+  var a=document.querySelectorAll('#cardList .item-card'),n=_S+_B;
+  a.forEach(function(c,i){if(i<n)c.classList.remove('batch-hidden');});
+  _S=Math.min(n,a.length);batchBtn();
+}
+function batchBtn(){
+  var b=document.getElementById('lmBtn');if(!b)return;
+  var r=document.querySelectorAll('#cardList .item-card').length-_S;
+  r<=0?b.classList.add('lmhide'):(b.classList.remove('lmhide'),b.textContent='\u2193 Memuat lebih banyak... ('+r+' tersisa)');
+}
+setTimeout(batchInit,200);
+(function(){
+  document.addEventListener('contextmenu',function(e){e.preventDefault();});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='F12'){e.preventDefault();return false;}
+    if(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C')){e.preventDefault();return false;}
+    if(e.ctrlKey&&(e.key==='u'||e.key==='s')){e.preventDefault();return false;}
+  });
+}());
 </script>
 </body>
 </html>
