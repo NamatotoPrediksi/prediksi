@@ -573,11 +573,20 @@
   .item-card.done.visible { opacity: 0.55; }
 
 
-  /* BATCH */
-  .batch-hidden{display:none!important}
-  .lmbtn{display:block;width:100%;max-width:760px;margin:12px auto 20px;padding:14px;background:var(--dark2);border:1px solid var(--border-bright);border-radius:4px;color:var(--gold);cursor:pointer;font-family:"Share Tech Mono",monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;text-align:center;transition:background .2s}
-  .lmbtn:hover{background:rgba(201,168,76,0.08)}
-  .lmbtn.lmhide{display:none!important}
+  /* BATCH SCROLL LOADING */
+  .batch-hidden { display: none !important; }
+  .load-more-btn {
+    display: block; width: 100%; max-width: 760px;
+    margin: 10px auto 20px; padding: 13px;
+    background: var(--dark2); border: 1px solid var(--border-bright);
+    border-radius: 4px; color: var(--gold); cursor: pointer;
+    font-family: 'Share Tech Mono', monospace; font-size: 11px;
+    letter-spacing: 3px; text-transform: uppercase; text-align: center;
+    transition: background .2s;
+  }
+  .load-more-btn:hover { background: rgba(201,168,76,0.08); }
+  .load-more-btn.btn-hide { display: none !important; }
+  .scroll-anchor { height: 1px; width: 100%; }
 </style>
 </head>
 <body>
@@ -628,7 +637,8 @@
   <div class="section-label" id="nextLabel">Jadwal Prediksi Hari Ini</div>
   <div class="no-result" id="noResult">⊘ Pasaran tidak ditemukan</div>
   <div id="cardList"></div>
-<button class="lmbtn lmhide" id="lmBtn" onclick="loadMore()">↓ Memuat lebih banyak...</button>
+<div class="scroll-anchor" id="batchAnchor"></div>
+<button class="load-more-btn btn-hide" id="loadMoreBtn" onclick="_loadMore()">↓ Memuat lebih banyak...</button>
 </main>
 
 <footer class="site-footer">
@@ -1011,7 +1021,21 @@ function updateClock() {
 render();
 updateClock();
 setInterval(updateClock, 1000);
-setInterval(function(){render();setTimeout(batchInit,80);},60000);
+setInterval(function() {
+  // Store how many cards are currently visible before re-render
+  var wasShown = window._batchShown || 0;
+  render();
+  // After re-render, restore previously shown amount (never reset to less)
+  setTimeout(function() {
+    var all = document.querySelectorAll('#cardList .item-card');
+    var show = Math.max(8, wasShown);
+    all.forEach(function(c, i) {
+      i < show ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+    });
+    window._batchShown = Math.min(show, all.length);
+    _refreshLoadBtn();
+  }, 50);
+}, 60000);
 
 // LIVE BACKGROUND
 (function() {
@@ -1230,6 +1254,7 @@ function initLazyCards() {
     if(e.ctrlKey && e.key==='u') e.preventDefault();
     if(e.ctrlKey && e.key==='s') e.preventDefault();
   });
+  
   // 4. Disable text selection on number elements
   var style = document.createElement('style');
   style.textContent = '.num-digits,.bbfs-block,.slide-nominal,.slide-pemenang-id{user-select:none;-webkit-user-select:none;}';
@@ -1237,32 +1262,117 @@ function initLazyCards() {
 })();
 
 
-var _B=8,_S=0;
-function batchInit(){
-  var a=document.querySelectorAll('#cardList .item-card');
-  if(!a.length)return;
-  a.forEach(function(c,i){i<_B?c.classList.remove('batch-hidden'):c.classList.add('batch-hidden');});
-  _S=Math.min(_B,a.length);batchBtn();
+// ═══════════════════════════════════════════
+// BATCH SCROLL LOADING
+// ═══════════════════════════════════════════
+var _BATCH_SIZE = 8;
+window._batchShown = 0;
+var _batchObserver = null;
+var _searchActive = false;
+
+function _batchInit() {
+  var all = document.querySelectorAll('#cardList .item-card');
+  if (!all.length) return;
+  // First load: show only first 8
+  if (window._batchShown === 0) window._batchShown = _BATCH_SIZE;
+  var show = window._batchShown;
+  all.forEach(function(c, i) {
+    i < show ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+  });
+  window._batchShown = Math.min(show, all.length);
+  _refreshLoadBtn();
+  _initScrollObserver();
 }
-function loadMore(){
-  var a=document.querySelectorAll('#cardList .item-card'),n=_S+_B;
-  a.forEach(function(c,i){if(i<n)c.classList.remove('batch-hidden');});
-  _S=Math.min(n,a.length);batchBtn();
+
+function _loadMore() {
+  var all = document.querySelectorAll('#cardList .item-card');
+  var next = window._batchShown + _BATCH_SIZE;
+  all.forEach(function(c, i) { if (i < next) c.classList.remove('batch-hidden'); });
+  window._batchShown = Math.min(next, all.length);
+  _refreshLoadBtn();
 }
-function batchBtn(){
-  var b=document.getElementById('lmBtn');if(!b)return;
-  var r=document.querySelectorAll('#cardList .item-card').length-_S;
-  r<=0?b.classList.add('lmhide'):(b.classList.remove('lmhide'),b.textContent='\u2193 Memuat lebih banyak... ('+r+' tersisa)');
+
+function _refreshLoadBtn() {
+  var btn = document.getElementById('loadMoreBtn');
+  if (!btn) return;
+  if (_searchActive) { btn.classList.add('btn-hide'); return; }
+  var total = document.querySelectorAll('#cardList .item-card').length;
+  var rem = total - window._batchShown;
+  if (rem <= 0) {
+    btn.classList.add('btn-hide');
+    if (_batchObserver) { _batchObserver.disconnect(); _batchObserver = null; }
+  } else {
+    btn.classList.remove('btn-hide');
+    btn.textContent = '\u2193 Memuat lebih banyak... (' + rem + ' tersisa)';
+  }
 }
-setTimeout(batchInit,200);
-(function(){
-  document.addEventListener('contextmenu',function(e){e.preventDefault();});
-  document.addEventListener('keydown',function(e){
-    if(e.key==='F12'){e.preventDefault();return false;}
-    if(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C')){e.preventDefault();return false;}
-    if(e.ctrlKey&&(e.key==='u'||e.key==='s')){e.preventDefault();return false;}
+
+function _initScrollObserver() {
+  var anchor = document.getElementById('batchAnchor');
+  if (!anchor || !('IntersectionObserver' in window)) return;
+  if (_batchObserver) _batchObserver.disconnect();
+  _batchObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting && !_searchActive) _loadMore();
+    });
+  }, { rootMargin: '150px' });
+  _batchObserver.observe(anchor);
+}
+
+// Hook into search - reveal all when searching, restore batch when done
+var _origSearch = null;
+(function() {
+  var si = document.getElementById('searchInput');
+  if (!si) return;
+  si.addEventListener('input', function() {
+    var q = si.value.trim();
+    if (q) {
+      _searchActive = true;
+      // Reveal ALL cards so search works across everything
+      document.querySelectorAll('#cardList .item-card').forEach(function(c) {
+        c.classList.remove('batch-hidden');
+      });
+      // Hide load more button during search
+      var btn = document.getElementById('loadMoreBtn');
+      if (btn) btn.classList.add('btn-hide');
+    } else {
+      _searchActive = false;
+      // Restore batch state when search is cleared
+      var all = document.querySelectorAll('#cardList .item-card');
+      all.forEach(function(c, i) {
+        i < window._batchShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+      });
+      _refreshLoadBtn();
+    }
+  });
+})();
+
+// Also hook clear button
+var _origClearSearch = window.clearSearch;
+window.clearSearch = function() {
+  if (_origClearSearch) _origClearSearch();
+  _searchActive = false;
+  var all = document.querySelectorAll('#cardList .item-card');
+  all.forEach(function(c, i) {
+    i < window._batchShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+  });
+  _refreshLoadBtn();
+};
+
+setTimeout(_batchInit, 200);
+
+// ═══════════════════════════════════════════
+// PROTEKSI SCRIPT
+// ═══════════════════════════════════════════
+(function() {
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
+    if (e.ctrlKey && (e.key === 'u' || e.key === 's')) { e.preventDefault(); return false; }
   });
 }());
+
 </script>
 </body>
 </html>
