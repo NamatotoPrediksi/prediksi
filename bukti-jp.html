@@ -207,11 +207,20 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
   .game-card.visible { opacity: 1; transform: translateY(0); }
 
 
-  /* BATCH */
-  .batch-hidden{display:none!important}
-  .lmbtn{display:block;width:100%;max-width:900px;margin:12px auto 20px;padding:14px;background:var(--dark2);border:1px solid var(--border-bright);border-radius:4px;color:var(--gold);cursor:pointer;font-family:"Share Tech Mono",monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;text-align:center;transition:background .2s}
-  .lmbtn:hover{background:rgba(201,168,76,0.08)}
-  .lmbtn.lmhide{display:none!important}
+  /* BATCH SCROLL LOADING */
+  .batch-hidden { display: none !important; }
+  .load-more-btn {
+    display: block; width: 100%; max-width: 900px;
+    margin: 10px auto 20px; padding: 13px;
+    background: var(--dark2); border: 1px solid var(--border-bright);
+    border-radius: 4px; color: var(--gold); cursor: pointer;
+    font-family: 'Share Tech Mono', monospace; font-size: 11px;
+    letter-spacing: 3px; text-transform: uppercase; text-align: center;
+    transition: background .2s;
+  }
+  .load-more-btn:hover { background: rgba(201,168,76,0.08); }
+  .load-more-btn.btn-hide { display: none !important; }
+  .scroll-anchor { height: 1px; width: 100%; }
 </style>
 </head>
 <body>
@@ -271,7 +280,8 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
     <div class="error-wrap" id="errorP"><div class="error-icon">⚠</div><div class="error-text" id="errorTextP">Gagal memuat</div><div class="error-sub" id="errorSubP"></div></div>
     <div class="no-result" id="noResultP">⊘ Pasaran tidak ditemukan</div>
     <div id="cardListP"></div>
-<button class="lmbtn lmhide" id="lmBtnP" onclick="loadMoreP()">↓ Memuat lebih banyak...</button>
+<div class="scroll-anchor" id="batchAnchorP"></div>
+<button class="load-more-btn btn-hide" id="loadMoreBtnP" onclick="_loadMoreP()">↓ Memuat lebih banyak...</button>
   </main>
 </div>
 
@@ -515,7 +525,7 @@ function loadPasaran(){
       document.getElementById("loadingP").style.display="none";
       renderPasaran(jpMap,data.length);
       initSliders(jpMap);
-      setTimeout(batchInitP,200);
+      setTimeout(_batchInitP, 200);
       // Stats
       var aktif=Object.keys(jpMap).filter(function(k){return jpMap[k].length>0;}).length;
       var nom=0;
@@ -678,6 +688,7 @@ function initLazyBkti() {
     if(e.ctrlKey && e.key==='u') e.preventDefault();
     if(e.ctrlKey && e.key==='s') e.preventDefault();
   });
+  
   // 4. Disable text selection on number elements
   var style = document.createElement('style');
   style.textContent = '.num-digits,.bbfs-block,.slide-nominal,.slide-pemenang-id{user-select:none;-webkit-user-select:none;}';
@@ -685,31 +696,108 @@ function initLazyBkti() {
 })();
 
 
-var _BP=8,_SP=0;
-function batchInitP(){
-  var a=document.querySelectorAll('#cardListP .pasaran-card');
-  if(!a.length)return;
-  a.forEach(function(c,i){i<_BP?c.classList.remove('batch-hidden'):c.classList.add('batch-hidden');});
-  _SP=Math.min(_BP,a.length);batchBtnP();
+// ═══════════════════════════════════════════
+// BATCH SCROLL LOADING — PASARAN
+// ═══════════════════════════════════════════
+var _BSIZE = 8;
+var _bShown = 0;
+var _bObs = null;
+var _bSearchActive = false;
+
+function _batchInitP() {
+  var all = document.querySelectorAll('#cardListP .pasaran-card');
+  if (!all.length) return;
+  if (_bShown === 0) _bShown = _BSIZE;
+  all.forEach(function(c, i) {
+    i < _bShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+  });
+  _bShown = Math.min(_bShown, all.length);
+  _refreshBtnP();
+  _initObsP();
 }
-function loadMoreP(){
-  var a=document.querySelectorAll('#cardListP .pasaran-card'),n=_SP+_BP;
-  a.forEach(function(c,i){if(i<n)c.classList.remove('batch-hidden');});
-  _SP=Math.min(n,a.length);batchBtnP();
+
+function _loadMoreP() {
+  var all = document.querySelectorAll('#cardListP .pasaran-card');
+  var next = _bShown + _BSIZE;
+  all.forEach(function(c, i) { if (i < next) c.classList.remove('batch-hidden'); });
+  _bShown = Math.min(next, all.length);
+  _refreshBtnP();
 }
-function batchBtnP(){
-  var b=document.getElementById('lmBtnP');if(!b)return;
-  var r=document.querySelectorAll('#cardListP .pasaran-card').length-_SP;
-  r<=0?b.classList.add('lmhide'):(b.classList.remove('lmhide'),b.textContent='\u2193 Memuat lebih banyak... ('+r+' tersisa)');
+
+function _refreshBtnP() {
+  var btn = document.getElementById('loadMoreBtnP');
+  if (!btn) return;
+  if (_bSearchActive) { btn.classList.add('btn-hide'); return; }
+  var rem = document.querySelectorAll('#cardListP .pasaran-card').length - _bShown;
+  if (rem <= 0) {
+    btn.classList.add('btn-hide');
+    if (_bObs) { _bObs.disconnect(); _bObs = null; }
+  } else {
+    btn.classList.remove('btn-hide');
+    btn.textContent = '\u2193 Memuat lebih banyak... (' + rem + ' tersisa)';
+  }
 }
-(function(){
-  document.addEventListener('contextmenu',function(e){e.preventDefault();});
-  document.addEventListener('keydown',function(e){
-    if(e.key==='F12'){e.preventDefault();return false;}
-    if(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C')){e.preventDefault();return false;}
-    if(e.ctrlKey&&(e.key==='u'||e.key==='s')){e.preventDefault();return false;}
+
+function _initObsP() {
+  var anchor = document.getElementById('batchAnchorP');
+  if (!anchor || !('IntersectionObserver' in window)) return;
+  if (_bObs) _bObs.disconnect();
+  _bObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting && !_bSearchActive) _loadMoreP();
+    });
+  }, { rootMargin: '150px' });
+  _bObs.observe(anchor);
+}
+
+// Search hook for pasaran tab
+(function() {
+  var si = document.getElementById('searchP');
+  if (!si) return;
+  si.addEventListener('input', function() {
+    var q = si.value.trim();
+    if (q) {
+      _bSearchActive = true;
+      document.querySelectorAll('#cardListP .pasaran-card').forEach(function(c) {
+        c.classList.remove('batch-hidden');
+      });
+      var btn = document.getElementById('loadMoreBtnP');
+      if (btn) btn.classList.add('btn-hide');
+    } else {
+      _bSearchActive = false;
+      var all = document.querySelectorAll('#cardListP .pasaran-card');
+      all.forEach(function(c, i) {
+        i < _bShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+      });
+      _refreshBtnP();
+    }
+  });
+})();
+
+// Hook clearSearchP
+var _origClearP = window.clearSearchP;
+window.clearSearchP = function() {
+  if (_origClearP) _origClearP();
+  _bSearchActive = false;
+  var all = document.querySelectorAll('#cardListP .pasaran-card');
+  all.forEach(function(c, i) {
+    i < _bShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+  });
+  _refreshBtnP();
+};
+
+// ═══════════════════════════════════════════
+// PROTEKSI SCRIPT
+// ═══════════════════════════════════════════
+(function() {
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12') { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
+    if (e.ctrlKey && (e.key === 'u' || e.key === 's')) { e.preventDefault(); return false; }
   });
 }());
+
 </script>
 </body>
 </html>
