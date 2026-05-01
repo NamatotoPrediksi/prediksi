@@ -207,20 +207,11 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
   .game-card.visible { opacity: 1; transform: translateY(0); }
 
 
-  /* BATCH RENDER */
-  .batch-hidden { display: none !important; }
-  .load-more-btn {
-    display: block; width: 100%; max-width: 900px;
-    margin: 12px auto 20px; padding: 14px;
-    background: var(--dark2); border: 1px solid var(--border-bright);
-    border-radius: 4px; color: var(--gold); cursor: pointer;
-    font-family: 'Share Tech Mono', monospace; font-size: 12px;
-    letter-spacing: 3px; text-transform: uppercase; text-align: center;
-    transition: background .2s;
-  }
-  .load-more-btn:hover { background: rgba(201,168,76,0.08); }
-  .load-more-btn.hidden { display: none !important; }
-
+  /* BATCH */
+  .batch-hidden{display:none!important}
+  .lmbtn{display:block;width:100%;max-width:900px;margin:12px auto 20px;padding:14px;background:var(--dark2);border:1px solid var(--border-bright);border-radius:4px;color:var(--gold);cursor:pointer;font-family:"Share Tech Mono",monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;text-align:center;transition:background .2s}
+  .lmbtn:hover{background:rgba(201,168,76,0.08)}
+  .lmbtn.lmhide{display:none!important}
 </style>
 </head>
 <body>
@@ -280,7 +271,7 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
     <div class="error-wrap" id="errorP"><div class="error-icon">⚠</div><div class="error-text" id="errorTextP">Gagal memuat</div><div class="error-sub" id="errorSubP"></div></div>
     <div class="no-result" id="noResultP">⊘ Pasaran tidak ditemukan</div>
     <div id="cardListP"></div>
-    <button class="load-more-btn hidden" id="loadMoreBtnP" onclick="loadMoreP()">↓ Memuat lebih banyak...</button>
+<button class="lmbtn lmhide" id="lmBtnP" onclick="loadMoreP()">↓ Memuat lebih banyak...</button>
   </main>
 </div>
 
@@ -524,7 +515,7 @@ function loadPasaran(){
       document.getElementById("loadingP").style.display="none";
       renderPasaran(jpMap,data.length);
       initSliders(jpMap);
-      setTimeout(applyBatchP, 100);
+      setTimeout(batchInitP,200);
       // Stats
       var aktif=Object.keys(jpMap).filter(function(k){return jpMap[k].length>0;}).length;
       var nom=0;
@@ -574,8 +565,6 @@ function loadGame(){
       // Stats
       var nom=0;
       latest.forEach(function(jp){var n=parseInt((jp.nominal||"").replace(/[^0-9]/g,""));if(!isNaN(n))nom+=n;});
-      var bigNom=0,bigGame="—";
-      latest.forEach(function(jp){var n=parseInt((jp.nominal||"").replace(/[^0-9]/g,""));if(!isNaN(n)&&n>bigNom){bigNom=n;bigGame=jp.pasaran||"—";}});
       document.getElementById("gStatTotal").textContent=data.length;
       document.getElementById("gStatLast").textContent=latest.length>0?latest[0].tanggal:"—";
       document.getElementById("gStatNominal").textContent=nom>0?"Rp "+nom.toLocaleString("id-ID"):"—";
@@ -662,6 +651,12 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape")closeLB();})
 // ══════════════════════════════════════════════════
 loadPasaran();
 
+// ── LAZY RENDER ─────────────────────────────────────────
+function initLazyBkti() {
+  if (!('IntersectionObserver' in window)) {
+    document.querySelectorAll('.pasaran-card,.game-card').forEach(function(c){ c.classList.add('visible'); });
+    return;
+  }
   var obs = new IntersectionObserver(function(entries) {
     entries.forEach(function(e) {
       if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
@@ -683,15 +678,6 @@ loadPasaran();
     if(e.ctrlKey && e.key==='u') e.preventDefault();
     if(e.ctrlKey && e.key==='s') e.preventDefault();
   });
-  
-  // 3. Detect devtools open (basic check)
-  var _dt = false;
-  setInterval(function(){
-    var t = new Date();
-    debugger;
-    if(new Date()-t > 100 && !_dt){ _dt=true; }
-  }, 3000);
-  
   // 4. Disable text selection on number elements
   var style = document.createElement('style');
   style.textContent = '.num-digits,.bbfs-block,.slide-nominal,.slide-pemenang-id{user-select:none;-webkit-user-select:none;}';
@@ -699,36 +685,31 @@ loadPasaran();
 })();
 
 
-// ════════════════════════════════════
-// BATCH LOADING — BUKTI JP PASARAN
-// ════════════════════════════════════
-var _batchP = 8, _renderedP = 0;
-
-function applyBatchP() {
-  var all = document.querySelectorAll('#cardListP .pasaran-card');
-  if (!all.length) return;
-  all.forEach(function(c,i){ i < _batchP ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden'); });
-  _renderedP = Math.min(_batchP, all.length);
-  updateLoadMoreP();
+var _BP=8,_SP=0;
+function batchInitP(){
+  var a=document.querySelectorAll('#cardListP .pasaran-card');
+  if(!a.length)return;
+  a.forEach(function(c,i){i<_BP?c.classList.remove('batch-hidden'):c.classList.add('batch-hidden');});
+  _SP=Math.min(_BP,a.length);batchBtnP();
 }
-
-function loadMoreP() {
-  var all = document.querySelectorAll('#cardListP .pasaran-card');
-  var next = _renderedP + _batchP;
-  all.forEach(function(c,i){ if(i<next) c.classList.remove('batch-hidden'); });
-  _renderedP = Math.min(next, all.length);
-  updateLoadMoreP();
+function loadMoreP(){
+  var a=document.querySelectorAll('#cardListP .pasaran-card'),n=_SP+_BP;
+  a.forEach(function(c,i){if(i<n)c.classList.remove('batch-hidden');});
+  _SP=Math.min(n,a.length);batchBtnP();
 }
-
-function updateLoadMoreP() {
-  var all = document.querySelectorAll('#cardListP .pasaran-card');
-  var btn = document.getElementById('loadMoreBtnP');
-  if (!btn) return;
-  var rem = all.length - _renderedP;
-  if (rem <= 0) { btn.classList.add('hidden'); }
-  else { btn.classList.remove('hidden'); btn.textContent = '↓ Memuat lebih banyak... (' + rem + ' pasaran tersisa)'; }
+function batchBtnP(){
+  var b=document.getElementById('lmBtnP');if(!b)return;
+  var r=document.querySelectorAll('#cardListP .pasaran-card').length-_SP;
+  r<=0?b.classList.add('lmhide'):(b.classList.remove('lmhide'),b.textContent='\u2193 Memuat lebih banyak... ('+r+' tersisa)');
 }
-
+(function(){
+  document.addEventListener('contextmenu',function(e){e.preventDefault();});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='F12'){e.preventDefault();return false;}
+    if(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C')){e.preventDefault();return false;}
+    if(e.ctrlKey&&(e.key==='u'||e.key==='s')){e.preventDefault();return false;}
+  });
+}());
 </script>
 </body>
 </html>
