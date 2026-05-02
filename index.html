@@ -573,7 +573,7 @@
   .item-card.done.visible { opacity: 0.55; }
 
 
-  /* BATCH SCROLL LOADING */
+  /* BATCH SCROLL LOAD */
   .batch-hidden { display: none !important; }
   .load-more-btn {
     display: block; width: 100%; max-width: 760px;
@@ -586,7 +586,7 @@
   }
   .load-more-btn:hover { background: rgba(201,168,76,0.08); }
   .load-more-btn.btn-hide { display: none !important; }
-  .scroll-anchor { height: 1px; width: 100%; }
+  .scroll-anchor { height: 1px; }
 </style>
 </head>
 <body>
@@ -638,7 +638,7 @@
   <div class="no-result" id="noResult">⊘ Pasaran tidak ditemukan</div>
   <div id="cardList"></div>
 <div class="scroll-anchor" id="batchAnchor"></div>
-<button class="load-more-btn btn-hide" id="loadMoreBtn" onclick="_loadMore()">↓ Memuat lebih banyak...</button>
+<button class="load-more-btn btn-hide" id="loadMoreBtn" onclick="loadMore()">↓ Memuat lebih banyak...</button>
 </main>
 
 <footer class="site-footer">
@@ -1021,21 +1021,6 @@ function updateClock() {
 render();
 updateClock();
 setInterval(updateClock, 1000);
-setInterval(function() {
-  // Store how many cards are currently visible before re-render
-  var wasShown = window._batchShown || 0;
-  render();
-  // After re-render, restore previously shown amount (never reset to less)
-  setTimeout(function() {
-    var all = document.querySelectorAll('#cardList .item-card');
-    var show = Math.max(8, wasShown);
-    all.forEach(function(c, i) {
-      i < show ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
-    });
-    window._batchShown = Math.min(show, all.length);
-    _refreshLoadBtn();
-  }, 50);
-}, 60000);
 
 // LIVE BACKGROUND
 (function() {
@@ -1262,113 +1247,109 @@ function initLazyCards() {
 })();
 
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
 // BATCH SCROLL LOADING
-// ═══════════════════════════════════════════
-var _BATCH_SIZE = 8;
-window._batchShown = 0;
-var _batchObserver = null;
-var _searchActive = false;
+// ═══════════════════════════════════════
+var BATCH = 8;
+var bShown = 0;
+var bObs = null;
+var bSearchOn = false;
 
-function _batchInit() {
+function batchInit() {
   var all = document.querySelectorAll('#cardList .item-card');
   if (!all.length) return;
-  // First load: show only first 8
-  if (window._batchShown === 0) window._batchShown = _BATCH_SIZE;
-  var show = window._batchShown;
+  if (bShown === 0) bShown = BATCH;
   all.forEach(function(c, i) {
-    i < show ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+    i < bShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
   });
-  window._batchShown = Math.min(show, all.length);
-  _refreshLoadBtn();
-  _initScrollObserver();
+  bShown = Math.min(bShown, all.length);
+  updateBtn();
+  setupObs();
 }
 
-function _loadMore() {
+function loadMore() {
   var all = document.querySelectorAll('#cardList .item-card');
-  var next = window._batchShown + _BATCH_SIZE;
-  all.forEach(function(c, i) { if (i < next) c.classList.remove('batch-hidden'); });
-  window._batchShown = Math.min(next, all.length);
-  _refreshLoadBtn();
+  bShown = Math.min(bShown + BATCH, all.length);
+  all.forEach(function(c, i) {
+    i < bShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+  });
+  updateBtn();
 }
 
-function _refreshLoadBtn() {
+function updateBtn() {
   var btn = document.getElementById('loadMoreBtn');
   if (!btn) return;
-  if (_searchActive) { btn.classList.add('btn-hide'); return; }
-  var total = document.querySelectorAll('#cardList .item-card').length;
-  var rem = total - window._batchShown;
+  if (bSearchOn) { btn.classList.add('btn-hide'); return; }
+  var rem = document.querySelectorAll('#cardList .item-card').length - bShown;
   if (rem <= 0) {
     btn.classList.add('btn-hide');
-    if (_batchObserver) { _batchObserver.disconnect(); _batchObserver = null; }
+    if (bObs) { bObs.disconnect(); bObs = null; }
   } else {
     btn.classList.remove('btn-hide');
     btn.textContent = '\u2193 Memuat lebih banyak... (' + rem + ' tersisa)';
   }
 }
 
-function _initScrollObserver() {
+function setupObs() {
   var anchor = document.getElementById('batchAnchor');
   if (!anchor || !('IntersectionObserver' in window)) return;
-  if (_batchObserver) _batchObserver.disconnect();
-  _batchObserver = new IntersectionObserver(function(entries) {
+  if (bObs) bObs.disconnect();
+  bObs = new IntersectionObserver(function(entries) {
     entries.forEach(function(e) {
-      if (e.isIntersecting && !_searchActive) _loadMore();
+      if (e.isIntersecting && !bSearchOn) loadMore();
     });
-  }, { rootMargin: '150px' });
-  _batchObserver.observe(anchor);
+  }, { rootMargin: '200px' });
+  bObs.observe(anchor);
 }
 
-// Hook into search - reveal all when searching, restore batch when done
-var _origSearch = null;
+// Search: reveal all when typing, restore batch when cleared
 (function() {
   var si = document.getElementById('searchInput');
   if (!si) return;
+  var orig = si.oninput;
   si.addEventListener('input', function() {
     var q = si.value.trim();
     if (q) {
-      _searchActive = true;
-      // Reveal ALL cards so search works across everything
+      bSearchOn = true;
       document.querySelectorAll('#cardList .item-card').forEach(function(c) {
         c.classList.remove('batch-hidden');
       });
-      // Hide load more button during search
       var btn = document.getElementById('loadMoreBtn');
       if (btn) btn.classList.add('btn-hide');
     } else {
-      _searchActive = false;
-      // Restore batch state when search is cleared
+      bSearchOn = false;
       var all = document.querySelectorAll('#cardList .item-card');
       all.forEach(function(c, i) {
-        i < window._batchShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+        i < bShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
       });
-      _refreshLoadBtn();
+      updateBtn();
     }
   });
 })();
 
-// Also hook clear button
-var _origClearSearch = window.clearSearch;
+var _origClear = window.clearSearch;
 window.clearSearch = function() {
-  if (_origClearSearch) _origClearSearch();
-  _searchActive = false;
+  if (_origClear) _origClear();
+  bSearchOn = false;
   var all = document.querySelectorAll('#cardList .item-card');
   all.forEach(function(c, i) {
-    i < window._batchShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+    i < bShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
   });
-  _refreshLoadBtn();
+  updateBtn();
 };
 
-setTimeout(_batchInit, 200);
+setTimeout(batchInit, 200);
 
-// ═══════════════════════════════════════════
-// PROTEKSI SCRIPT
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
+// PROTEKSI
+// ═══════════════════════════════════════
 (function() {
   document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   document.addEventListener('keydown', function(e) {
     if (e.key === 'F12') { e.preventDefault(); return false; }
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
+      e.preventDefault(); return false;
+    }
     if (e.ctrlKey && (e.key === 'u' || e.key === 's')) { e.preventDefault(); return false; }
   });
 }());
