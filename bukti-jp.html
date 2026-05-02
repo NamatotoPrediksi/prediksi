@@ -207,7 +207,7 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
   .game-card.visible { opacity: 1; transform: translateY(0); }
 
 
-  /* BATCH SCROLL LOADING */
+  /* BATCH SCROLL LOAD */
   .batch-hidden { display: none !important; }
   .load-more-btn {
     display: block; width: 100%; max-width: 900px;
@@ -220,7 +220,7 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
   }
   .load-more-btn:hover { background: rgba(201,168,76,0.08); }
   .load-more-btn.btn-hide { display: none !important; }
-  .scroll-anchor { height: 1px; width: 100%; }
+  .scroll-anchor { height: 1px; }
 </style>
 </head>
 <body>
@@ -281,7 +281,7 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
     <div class="no-result" id="noResultP">⊘ Pasaran tidak ditemukan</div>
     <div id="cardListP"></div>
 <div class="scroll-anchor" id="batchAnchorP"></div>
-<button class="load-more-btn btn-hide" id="loadMoreBtnP" onclick="_loadMoreP()">↓ Memuat lebih banyak...</button>
+<button class="load-more-btn btn-hide" id="loadMoreBtnP" onclick="loadMoreP()">↓ Memuat lebih banyak...</button>
   </main>
 </div>
 
@@ -319,11 +319,11 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
 // ══════════════════════════════════════════════════
 // KONFIGURASI
 // ══════════════════════════════════════════════════
-var SHEET_URL_PASARAN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQRB0dYJU0eL0472jQGtu7XHINzeE77Naq2ajWdLyk4Pmtat030rO8VRXmEqrWiq0eLaP3AOXBW7xWM/pub?gid=0&single=true&output=csv";
+var SHEET_URL_PASARAN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQRB0dYJU0eL0472jQGtu7XHINzeE77Naq2ajWdLyk4Pmtat030rO8VRXmEqrWiq0eLaP3AOXBW7xWM/pub?gid=714330021&single=true&output=csv";
 
 // Ganti URL di bawah ini dengan URL publish Google Sheet Bukti JP Game
 // Cara: buat sheet baru → File → Bagikan → Publikasikan di web → CSV → salin URL
-var SHEET_URL_GAME = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTjBoor-lqjqrNSMqEa7m5RqjU5kWV3jD6GrNFPLkjdrIAANNAbqWh4vSVobxrII4YpeoZv83nsvLSa/pub?gid=0&single=true&output=csv";
+var SHEET_URL_GAME = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTjBoor-lqjqrNSMqEa7m5RqjU5kWV3jD6GrNFPLkjdrIAANNAbqWh4vSVobxrII4YpeoZv83nsvLSa/pub?gid=1690116553&single=true&output=csv";
 
 // ══════════════════════════════════════════════════
 // DATA PASARAN dengan logo
@@ -525,7 +525,7 @@ function loadPasaran(){
       document.getElementById("loadingP").style.display="none";
       renderPasaran(jpMap,data.length);
       initSliders(jpMap);
-      setTimeout(_batchInitP, 200);
+      setTimeout(batchInitP, 200);
       // Stats
       var aktif=Object.keys(jpMap).filter(function(k){return jpMap[k].length>0;}).length;
       var nom=0;
@@ -557,7 +557,7 @@ function renderPasaran(jpMap,total){
 // ══════════════════════════════════════════════════
 function loadGame(){
   gameLoaded=true;
-  if(SHEET_URL_GAME==="https://docs.google.com/spreadsheets/d/e/2PACX-1vTjBoor-lqjqrNSMqEa7m5RqjU5kWV3jD6GrNFPLkjdrIAANNAbqWh4vSVobxrII4YpeoZv83nsvLSa/pub?gid=0&single=true&output=csv"){
+  if(SHEET_URL_GAME==="https://docs.google.com/spreadsheets/d/e/2PACX-1vTjBoor-lqjqrNSMqEa7m5RqjU5kWV3jD6GrNFPLkjdrIAANNAbqWh4vSVobxrII4YpeoZv83nsvLSa/pub?gid=1690116553&single=true&output=csv"){
     document.getElementById("loadingG").style.display="none";
     document.getElementById("errorTextG").textContent="Sheet Bukti JP Game belum dikonfigurasi";
     document.getElementById("errorSubG").textContent="Buka file ini, cari SHEET_URL_GAME dan isi dengan URL Google Sheet Bukti JP Game kamu.";
@@ -696,104 +696,105 @@ function initLazyBkti() {
 })();
 
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
 // BATCH SCROLL LOADING — PASARAN
-// ═══════════════════════════════════════════
-var _BSIZE = 8;
-var _bShown = 0;
-var _bObs = null;
-var _bSearchActive = false;
+// ═══════════════════════════════════════
+var BATCHP = 8;
+var bShownP = 0;
+var bObsP = null;
+var bSearchP = false;
 
-function _batchInitP() {
+function batchInitP() {
   var all = document.querySelectorAll('#cardListP .pasaran-card');
   if (!all.length) return;
-  if (_bShown === 0) _bShown = _BSIZE;
+  if (bShownP === 0) bShownP = BATCHP;
   all.forEach(function(c, i) {
-    i < _bShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+    i < bShownP ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
   });
-  _bShown = Math.min(_bShown, all.length);
-  _refreshBtnP();
-  _initObsP();
+  bShownP = Math.min(bShownP, all.length);
+  updateBtnP();
+  setupObsP();
 }
 
-function _loadMoreP() {
+function loadMoreP() {
   var all = document.querySelectorAll('#cardListP .pasaran-card');
-  var next = _bShown + _BSIZE;
-  all.forEach(function(c, i) { if (i < next) c.classList.remove('batch-hidden'); });
-  _bShown = Math.min(next, all.length);
-  _refreshBtnP();
+  bShownP = Math.min(bShownP + BATCHP, all.length);
+  all.forEach(function(c, i) {
+    i < bShownP ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+  });
+  updateBtnP();
 }
 
-function _refreshBtnP() {
+function updateBtnP() {
   var btn = document.getElementById('loadMoreBtnP');
   if (!btn) return;
-  if (_bSearchActive) { btn.classList.add('btn-hide'); return; }
-  var rem = document.querySelectorAll('#cardListP .pasaran-card').length - _bShown;
+  if (bSearchP) { btn.classList.add('btn-hide'); return; }
+  var rem = document.querySelectorAll('#cardListP .pasaran-card').length - bShownP;
   if (rem <= 0) {
     btn.classList.add('btn-hide');
-    if (_bObs) { _bObs.disconnect(); _bObs = null; }
+    if (bObsP) { bObsP.disconnect(); bObsP = null; }
   } else {
     btn.classList.remove('btn-hide');
     btn.textContent = '\u2193 Memuat lebih banyak... (' + rem + ' tersisa)';
   }
 }
 
-function _initObsP() {
+function setupObsP() {
   var anchor = document.getElementById('batchAnchorP');
   if (!anchor || !('IntersectionObserver' in window)) return;
-  if (_bObs) _bObs.disconnect();
-  _bObs = new IntersectionObserver(function(entries) {
+  if (bObsP) bObsP.disconnect();
+  bObsP = new IntersectionObserver(function(entries) {
     entries.forEach(function(e) {
-      if (e.isIntersecting && !_bSearchActive) _loadMoreP();
+      if (e.isIntersecting && !bSearchP) loadMoreP();
     });
-  }, { rootMargin: '150px' });
-  _bObs.observe(anchor);
+  }, { rootMargin: '200px' });
+  bObsP.observe(anchor);
 }
 
-// Search hook for pasaran tab
 (function() {
   var si = document.getElementById('searchP');
   if (!si) return;
   si.addEventListener('input', function() {
     var q = si.value.trim();
     if (q) {
-      _bSearchActive = true;
+      bSearchP = true;
       document.querySelectorAll('#cardListP .pasaran-card').forEach(function(c) {
         c.classList.remove('batch-hidden');
       });
       var btn = document.getElementById('loadMoreBtnP');
       if (btn) btn.classList.add('btn-hide');
     } else {
-      _bSearchActive = false;
+      bSearchP = false;
       var all = document.querySelectorAll('#cardListP .pasaran-card');
       all.forEach(function(c, i) {
-        i < _bShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+        i < bShownP ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
       });
-      _refreshBtnP();
+      updateBtnP();
     }
   });
 })();
 
-// Hook clearSearchP
-var _origClearP = window.clearSearchP;
+var _origCP = window.clearSearchP;
 window.clearSearchP = function() {
-  if (_origClearP) _origClearP();
-  _bSearchActive = false;
+  if (_origCP) _origCP();
+  bSearchP = false;
   var all = document.querySelectorAll('#cardListP .pasaran-card');
   all.forEach(function(c, i) {
-    i < _bShown ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
+    i < bShownP ? c.classList.remove('batch-hidden') : c.classList.add('batch-hidden');
   });
-  _refreshBtnP();
+  updateBtnP();
 };
 
-// ═══════════════════════════════════════════
-// PROTEKSI SCRIPT
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════
+// PROTEKSI
+// ═══════════════════════════════════════
 (function() {
   document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
   document.addEventListener('keydown', function(e) {
     if (e.key === 'F12') { e.preventDefault(); return false; }
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
+      e.preventDefault(); return false;
+    }
     if (e.ctrlKey && (e.key === 'u' || e.key === 's')) { e.preventDefault(); return false; }
   });
 }());
