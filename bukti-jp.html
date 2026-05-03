@@ -399,6 +399,18 @@ function fmtNominal(raw){
   return isNaN(n)?raw:"Rp "+n.toLocaleString("id-ID");
 }
 
+// Convert imgbb viewer URL to direct image URL
+function fixImgUrl(url) {
+  if (!url) return url;
+  url = url.trim();
+  // Already direct: i.ibb.co or other hosts
+  if (url.includes('i.ibb.co') || !url.includes('ibb.co')) return url;
+  // Convert ibb.co/HASH to i.ibb.co/HASH
+  // imgbb viewer: https://ibb.co/gZ0G5Jnq
+  // imgbb direct:  https://i.ibb.co/gZ0G5Jnq (add 'i.' prefix and it works for recent uploads)
+  return url.replace('https://ibb.co/', 'https://i.ibb.co/');
+}
+
 function parseCSV(txt){
   var lines=txt.trim().split("\n"),res=[];
   for(var i=1;i<lines.length;i++){
@@ -420,7 +432,7 @@ function parseCSV(txt){
       tanggal:row[off+1]||"",
       nominal:row[off+2]||"",
       pemenang:row[off+3]||"",
-      foto_url:row[off+4]||""
+      foto_url:fixImgUrl(row[off+4]||"")
     });
   }
   return res;
@@ -557,14 +569,7 @@ function renderPasaran(jpMap,total){
 // ══════════════════════════════════════════════════
 function loadGame(){
   gameLoaded=true;
-  if(SHEET_URL_GAME==="https://docs.google.com/spreadsheets/d/e/2PACX-1vTjBoor-lqjqrNSMqEa7m5RqjU5kWV3jD6GrNFPLkjdrIAANNAbqWh4vSVobxrII4YpeoZv83nsvLSa/pub?gid=1690116553&single=true&output=csv"){
-    document.getElementById("loadingG").style.display="none";
-    document.getElementById("errorTextG").textContent="Sheet Bukti JP Game belum dikonfigurasi";
-    document.getElementById("errorSubG").textContent="Buka file ini, cari SHEET_URL_GAME dan isi dengan URL Google Sheet Bukti JP Game kamu.";
-    document.getElementById("errorG").classList.add("visible");
-    return;
-  }
-  fetch(SHEET_URL_GAME)
+    fetch(SHEET_URL_GAME)
     .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.text();})
     .then(function(csv){
       var data=parseCSV(csv);
