@@ -548,13 +548,6 @@ function renderPasaran(jpMap,total){
 // ══════════════════════════════════════════════════
 function loadGame(){
   gameLoaded=true;
-  if(SHEET_URL_GAME==="https://docs.google.com/spreadsheets/d/e/2PACX-1vTjBoor-lqjqrNSMqEa7m5RqjU5kWV3jD6GrNFPLkjdrIAANNAbqWh4vSVobxrII4YpeoZv83nsvLSa/pub?gid=1690116553&single=true&output=csv"){
-    document.getElementById("loadingG").style.display="none";
-    document.getElementById("errorTextG").textContent="Sheet Bukti JP Game belum dikonfigurasi";
-    document.getElementById("errorSubG").textContent="Buka file ini, cari SHEET_URL_GAME dan isi dengan URL Google Sheet Bukti JP Game kamu.";
-    document.getElementById("errorG").classList.add("visible");
-    return;
-  }
   fetch(SHEET_URL_GAME)
     .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.text();})
     .then(function(csv){
