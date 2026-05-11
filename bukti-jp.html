@@ -199,12 +199,7 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
     filter: drop-shadow(0 0 12px rgba(201,168,76,0.5));
   }
 
-  /* LAZY LOAD */
-  .pasaran-card { opacity: 0; transform: translateY(10px); transition: opacity .3s ease, transform .3s ease; }
-  .pasaran-card.visible { opacity: 1; transform: translateY(0); }
-  .pasaran-card.no-data.visible { opacity: 0.45; }
-  .game-card { opacity: 0; transform: translateY(10px); transition: opacity .3s ease, transform .3s ease; }
-  .game-card.visible { opacity: 1; transform: translateY(0); }
+  /* LAZY LOAD - dihandle di CSS baru */
 
 
   .batch-hidden{display:none!important}
@@ -212,6 +207,73 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
   .load-more-btn:hover{background:rgba(201,168,76,0.08)}
   .load-more-btn.btn-hide{display:none!important}
   .scroll-anchor{height:1px}
+
+  /* ═══════════════════════════════════════════════
+     FITUR BARU: FILTER & SORT BAR
+  ═══════════════════════════════════════════════ */
+  .filter-sort-bar{max-width:900px;margin:12px auto 0;padding:0 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .filter-btn{font-family:"Share Tech Mono",monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;background:var(--dark2);border:1px solid var(--border);border-radius:3px;color:var(--text-dim);padding:7px 14px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .filter-btn.active{background:rgba(201,168,76,0.1);border-color:var(--gold);color:var(--gold);}
+  .filter-btn:hover:not(.active){border-color:var(--border-bright);color:var(--gold-light);}
+  .filter-sep{flex:1;}
+  .sort-select{font-family:"Share Tech Mono",monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;background:var(--dark2);border:1px solid var(--border);border-radius:3px;color:var(--text-dim);padding:7px 10px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23C9A84C'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+  .sort-select:hover{border-color:var(--border-bright);}
+  .sort-select option{background:var(--dark2);color:var(--text);}
+
+  /* ═══════════════════════════════════════════════
+     FITUR BARU: BADGE TERBARU (< 48 jam)
+  ═══════════════════════════════════════════════ */
+  .badge-baru{display:inline-block;font-family:"Share Tech Mono",monospace;font-size:8px;letter-spacing:2px;color:#fff;background:linear-gradient(135deg,#E03A3A,#FF6B6B);border-radius:2px;padding:2px 7px;margin-left:8px;animation:pulseRed 2s infinite;vertical-align:middle;}
+  @keyframes pulseRed{0%,100%{opacity:1;}50%{opacity:.7;}}
+
+  /* ═══════════════════════════════════════════════
+     FITUR BARU: SKELETON LOADING
+  ═══════════════════════════════════════════════ */
+  .skeleton-wrap{max-width:900px;margin:16px auto 0;padding:0 16px;}
+  .skeleton-card{background:var(--dark2);border:1px solid var(--border);border-radius:4px;margin-bottom:14px;overflow:hidden;}
+  .skeleton-header{height:56px;padding:11px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:rgba(201,168,76,0.02);}
+  .skeleton-circle{width:34px;height:34px;border-radius:50%;background:linear-gradient(90deg,var(--dark3) 25%,var(--dark4) 50%,var(--dark3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
+  .skeleton-line{height:10px;border-radius:3px;background:linear-gradient(90deg,var(--dark3) 25%,var(--dark4) 50%,var(--dark3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
+  .skeleton-line.w60{width:60%;}
+  .skeleton-line.w40{width:40%;}
+  .skeleton-line.w80{width:80%;}
+  .skeleton-body{height:200px;background:linear-gradient(90deg,var(--dark3) 25%,var(--dark4) 50%,var(--dark3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
+  @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+  /* ═══════════════════════════════════════════════
+     FITUR BARU: SCROLL TO TOP BUTTON
+  ═══════════════════════════════════════════════ */
+  .scroll-top-btn{position:fixed;bottom:28px;right:22px;width:44px;height:44px;border-radius:50%;background:rgba(13,16,24,0.92);border:1px solid var(--border-bright);color:var(--gold);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:900;opacity:0;transform:translateY(20px);transition:opacity .3s,transform .3s,border-color .2s,box-shadow .2s;pointer-events:none;backdrop-filter:blur(8px);}
+  .scroll-top-btn.visible{opacity:1;transform:translateY(0);pointer-events:all;}
+  .scroll-top-btn:hover{border-color:var(--gold);box-shadow:0 0 14px rgba(201,168,76,0.25);}
+
+  /* ═══════════════════════════════════════════════
+     FITUR BARU: ANIMASI COUNTER STAT
+  ═══════════════════════════════════════════════ */
+  .stat-value{transition:color .3s;}
+  .stat-value.counting{color:var(--gold-light)!important;}
+
+  /* ═══════════════════════════════════════════════
+     FITUR BARU: NOMINAL FILTER PILLS (GAME TAB)
+  ═══════════════════════════════════════════════ */
+  .nom-filter-wrap{max-width:900px;margin:12px auto 0;padding:0 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .nom-pill{font-family:"Share Tech Mono",monospace;font-size:9px;letter-spacing:2px;border:1px solid var(--border);border-radius:20px;padding:5px 12px;cursor:pointer;color:var(--text-dim);background:transparent;transition:all .2s;white-space:nowrap;}
+  .nom-pill.active{border-color:var(--green);color:var(--green);background:rgba(46,204,113,0.08);}
+  .nom-pill:hover:not(.active){border-color:var(--border-bright);color:var(--gold-light);}
+  .nom-filter-label{font-family:"Share Tech Mono",monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;flex-shrink:0;}
+
+  /* ═══════════════════════════════════════════════
+     FITUR BARU: GAME CARD KLIK SELURUH FOTO
+  ═══════════════════════════════════════════════ */
+  .game-foto-overlay{position:relative;cursor:pointer;}
+  .game-foto-overlay::after{content:"🔍  LIHAT FOTO";position:absolute;inset:0;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;font-family:"Share Tech Mono",monospace;font-size:11px;letter-spacing:2px;color:transparent;transition:all .3s;}
+  .game-foto-overlay:hover::after{background:rgba(0,0,0,0.45);color:var(--gold);}
+
+  /* fade in cards */
+  .pasaran-card,.game-card{opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease,border-color .3s,box-shadow .3s;}
+  .pasaran-card.visible,.game-card.visible{opacity:1;transform:translateY(0);}
+  .pasaran-card.no-data.visible{opacity:0.45;}
+
 </style>
 </head>
 <body>
@@ -265,9 +327,28 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
     </div>
     <div class="search-info" id="searchInfoP"></div>
   </div>
+  <!-- FILTER & SORT BAR PASARAN -->
+  <div class="filter-sort-bar" id="filterSortP">
+    <button class="filter-btn active" id="fpAll" onclick="filterPasaran('all')">✦ Semua</button>
+    <button class="filter-btn" id="fpAda" onclick="filterPasaran('ada')">🏆 Ada JP</button>
+    <button class="filter-btn" id="fpBlm" onclick="filterPasaran('belum')">— Belum Ada</button>
+    <div class="filter-sep"></div>
+    <select class="sort-select" id="sortP" onchange="sortPasaran(this.value)">
+      <option value="default">Urutan Default</option>
+      <option value="terbanyak">JP Terbanyak</option>
+      <option value="terbesar">Nominal Terbesar</option>
+      <option value="az">A-Z</option>
+    </select>
+  </div>
   <div class="section-label" id="labelPasaran">Semua Pasaran</div>
   <main class="main">
-    <div class="loading-wrap" id="loadingP"><div class="loading-spinner"></div><div class="loading-text">Memuat data...</div></div>
+    <div id="loadingP">
+  <div class="skeleton-wrap">
+    <div class="skeleton-card"><div class="skeleton-header"><div class="skeleton-circle"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px;"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div></div></div><div class="skeleton-body"></div></div>
+    <div class="skeleton-card"><div class="skeleton-header"><div class="skeleton-circle"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px;"><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div></div><div class="skeleton-body"></div></div>
+    <div class="skeleton-card"><div class="skeleton-header"><div class="skeleton-circle"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px;"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div></div></div><div class="skeleton-body"></div></div>
+  </div>
+</div>
     <div class="error-wrap" id="errorP"><div class="error-icon">⚠</div><div class="error-text" id="errorTextP">Gagal memuat</div><div class="error-sub" id="errorSubP"></div></div>
     <div class="no-result" id="noResultP">⊘ Pasaran tidak ditemukan</div>
     <div id="cardListP"></div>
@@ -291,9 +372,31 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
     </div>
     <div class="search-info" id="searchInfoG"></div>
   </div>
+  <!-- FILTER NOMINAL GAME -->
+  <div class="nom-filter-wrap" id="nomFilterWrap">
+    <span class="nom-filter-label">Filter:</span>
+    <button class="nom-pill active" id="nfAll" onclick="filterGameNominal(0)">Semua</button>
+    <button class="nom-pill" id="nf1" onclick="filterGameNominal(1000000)">≥ 1 Juta</button>
+    <button class="nom-pill" id="nf5" onclick="filterGameNominal(5000000)">≥ 5 Juta</button>
+    <button class="nom-pill" id="nf10" onclick="filterGameNominal(10000000)">≥ 10 Juta</button>
+    <button class="nom-pill" id="nf50" onclick="filterGameNominal(50000000)">≥ 50 Juta</button>
+    <div class="filter-sep"></div>
+    <select class="sort-select" id="sortG" onchange="sortGame(this.value)">
+      <option value="terbaru">Terbaru</option>
+      <option value="terbesar">Nominal Terbesar</option>
+      <option value="terkecil">Nominal Terkecil</option>
+      <option value="az">A-Z Game</option>
+    </select>
+  </div>
   <div class="section-label" id="labelGame">10 Bukti JP Game Terbaru</div>
   <main class="main">
-    <div class="loading-wrap" id="loadingG"><div class="loading-spinner"></div><div class="loading-text">Memuat data...</div></div>
+    <div id="loadingG">
+  <div class="skeleton-wrap">
+    <div class="skeleton-card"><div class="skeleton-body" style="height:180px;margin-bottom:0"></div><div class="skeleton-header"><div class="skeleton-circle"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px;"><div class="skeleton-line w60"></div><div class="skeleton-line w80"></div></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-body" style="height:180px;margin-bottom:0"></div><div class="skeleton-header"><div class="skeleton-circle"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px;"><div class="skeleton-line w40"></div><div class="skeleton-line w60"></div></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-body" style="height:180px;margin-bottom:0"></div><div class="skeleton-header"><div class="skeleton-circle"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px;"><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div></div></div>
+  </div>
+</div>
     <div class="error-wrap" id="errorG"><div class="error-icon">⚠</div><div class="error-text" id="errorTextG">Gagal memuat</div><div class="error-sub" id="errorSubG"></div></div>
     <div class="no-result" id="noResultG">⊘ Tidak ditemukan</div>
     <div class="game-grid" id="cardListG"></div>
@@ -305,6 +408,7 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
   <img class="lightbox-img" id="lightboxImg" src="" alt="Bukti JP">
 </div>
 <footer class="site-footer">© NAMATOTO &nbsp;·&nbsp; BUKTI JP &nbsp;·&nbsp; ALL RIGHTS RESERVED</footer>
+<button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Kembali ke atas">▲</button>
 
 <script>
 // ══════════════════════════════════════════════════
@@ -582,7 +686,7 @@ function renderGame(data,totalAll){
   data.forEach(function(jp,i){
     var rank=i+1;
     var fotoHtml=jp.foto_url
-      ?'<img class="game-foto" src="'+jp.foto_url+'" alt="Bukti JP" onclick="openLB_src(this.src)">'
+      ?'<img class="game-foto" loading="lazy" src="'+jp.foto_url+'" alt="Bukti JP" onclick="openLB_src(this.src)" onerror="this.onerror=null;this.parentNode.innerHTML=\'<div class=\'game-foto-empty\'><span>🎮</span><p>FOTO TIDAK TERSEDIA</p></div>\'">'
       :'<div class="game-foto-empty"><span>🎮</span><p>TIDAK ADA FOTO</p></div>';
     html+='<div class="game-card" data-gname="'+( jp.pasaran||"").toUpperCase()+'"><div class="game-rank">#'+rank+'</div>'+fotoHtml+'<div class="game-info"><div class="game-info-item"><div class="game-info-label">Nama Game</div><div class="game-info-value">'+( jp.pasaran||"—")+'</div></div><div class="game-info-item"><div class="game-info-label">Tanggal &amp; Pemenang</div><div class="game-info-value">'+jp.tanggal+' · '+sensorId(jp.pemenang)+'</div></div><div class="game-nominal">'+fmtNominal(jp.nominal)+'</div></div></div>';
   });
@@ -647,6 +751,12 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape")closeLB();})
 // ══════════════════════════════════════════════════
 loadPasaran();
 
+// AUTO-REFRESH setiap 5 menit
+setInterval(function(){
+  loadPasaran();
+  if(gameLoaded){ gameLoaded=false; loadGame(); }
+}, 5 * 60 * 1000);
+
 // ── LAZY RENDER ─────────────────────────────────────────
 function initLazyBkti() {
   if (!('IntersectionObserver' in window)) {
@@ -689,6 +799,232 @@ function updateBtnP(){var btn=document.getElementById('loadMoreBtnP');if(!btn)re
 function setupObsP(){var s=document.getElementById('batchAnchorP');if(!s||!('IntersectionObserver' in window))return;if(bObsP)bObsP.disconnect();bObsP=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting&&!bSearchP)loadMoreP();});},{rootMargin:'200px'});bObsP.observe(s);}
 (function(){var si=document.getElementById('searchP');if(!si)return;si.addEventListener('input',function(){var q=si.value.trim();if(q){bSearchP=true;document.querySelectorAll('#cardListP .pasaran-card').forEach(function(c){c.classList.remove('batch-hidden');});var btn=document.getElementById('loadMoreBtnP');if(btn)btn.classList.add('btn-hide');}else{bSearchP=false;var a=document.querySelectorAll('#cardListP .pasaran-card');a.forEach(function(c,i){i<bShownP?c.classList.remove('batch-hidden'):c.classList.add('batch-hidden');});updateBtnP();}});})();
 (function(){document.addEventListener('contextmenu',function(e){e.preventDefault();});document.addEventListener('keydown',function(e){if(e.key==='F12'){e.preventDefault();return false;}if(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C')){e.preventDefault();return false;}if(e.ctrlKey&&(e.key==='u'||e.key==='s')){e.preventDefault();return false;}});})();
+
+
+// ══════════════════════════════════════════════════
+// SCROLL TO TOP BUTTON
+// ══════════════════════════════════════════════════
+window.addEventListener('scroll', function(){
+  var btn = document.getElementById('scrollTopBtn');
+  if(!btn) return;
+  if(window.scrollY > 300){ btn.classList.add('visible'); }
+  else { btn.classList.remove('visible'); }
+});
+
+// ══════════════════════════════════════════════════
+// ANIMASI COUNTER ANGKA STATS
+// ══════════════════════════════════════════════════
+function animateCounter(el, start, end, duration, prefix, suffix){
+  if(!el) return;
+  var startTime = null;
+  el.classList.add('counting');
+  function step(timestamp){
+    if(!startTime) startTime = timestamp;
+    var progress = Math.min((timestamp - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 3);
+    var current = Math.floor(start + (end - start) * eased);
+    el.textContent = (prefix||'') + current.toLocaleString('id-ID') + (suffix||'');
+    if(progress < 1){ requestAnimationFrame(step); }
+    else { el.textContent = (prefix||'') + end.toLocaleString('id-ID') + (suffix||''); el.classList.remove('counting'); }
+  }
+  requestAnimationFrame(step);
+}
+
+function animateStats(){
+  // Pasaran stats
+  var pTotal = document.getElementById('pStatTotal');
+  if(pTotal && pTotal.textContent && parseInt(pTotal.textContent.replace(/[^0-9]/g,'')) > 0){
+    var val = parseInt(pTotal.textContent.replace(/[^0-9]/g,''));
+    animateCounter(pTotal, 0, val, 800, '', '');
+  }
+  // Game stats nominal
+  var gNom = document.getElementById('gStatNominal');
+  if(gNom && gNom.textContent && gNom.textContent.includes('Rp')){
+    var raw = gNom.textContent.replace(/[^0-9]/g,'');
+    var val2 = parseInt(raw);
+    if(!isNaN(val2)){ animateCounter(gNom, 0, val2, 1200, 'Rp ', ''); }
+  }
+}
+
+// ══════════════════════════════════════════════════
+// BADGE TERBARU (< 48 jam)
+// ══════════════════════════════════════════════════
+function isBaru(tanggalStr){
+  if(!tanggalStr) return false;
+  try{
+    // Format: DD/MM/YYYY atau YYYY-MM-DD
+    var parts, d;
+    if(tanggalStr.includes('/')){
+      parts = tanggalStr.split('/');
+      d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+    } else {
+      d = new Date(tanggalStr.split(' ')[0]);
+    }
+    var diff = (Date.now() - d.getTime()) / (1000 * 60 * 60);
+    return diff <= 48;
+  } catch(e){ return false; }
+}
+
+// ══════════════════════════════════════════════════
+// FILTER PASARAN (ada JP / belum)
+// ══════════════════════════════════════════════════
+var currentFilterP = 'all';
+function filterPasaran(mode){
+  currentFilterP = mode;
+  ['fpAll','fpAda','fpBlm'].forEach(function(id){ var b=document.getElementById(id); if(b)b.classList.remove('active'); });
+  var btnId = mode==='all'?'fpAll':mode==='ada'?'fpAda':'fpBlm';
+  var btn = document.getElementById(btnId);
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('#cardListP .pasaran-card').forEach(function(c){
+    var isNoData = c.classList.contains('no-data');
+    var show = mode==='all' ? true : mode==='ada' ? !isNoData : isNoData;
+    c.style.display = show ? '' : 'none';
+  });
+}
+
+// ══════════════════════════════════════════════════
+// SORT PASARAN
+// ══════════════════════════════════════════════════
+var pasaranDataStore = [];
+function sortPasaran(mode){
+  var container = document.getElementById('cardListP');
+  if(!container) return;
+  var cards = Array.from(container.querySelectorAll('.pasaran-card'));
+  cards.sort(function(a,b){
+    if(mode === 'terbanyak'){
+      var ba = a.querySelector('.jp-badge:not(.empty)') ? 1 : 0;
+      var bb = b.querySelector('.jp-badge:not(.empty)') ? 1 : 0;
+      if(ba !== bb) return bb - ba;
+    }
+    if(mode === 'az'){
+      var na = (a.dataset.name||'');
+      var nb = (b.dataset.name||'');
+      return na.localeCompare(nb);
+    }
+    if(mode === 'terbesar'){
+      var ga = parseNominalEl(a); var gb = parseNominalEl(b);
+      return gb - ga;
+    }
+    return 0; // default
+  });
+  cards.forEach(function(c){ container.appendChild(c); });
+  filterPasaran(currentFilterP);
+}
+function parseNominalEl(card){
+  var el = card.querySelector('.slide-nominal');
+  if(!el) return 0;
+  return parseInt((el.textContent||'').replace(/[^0-9]/g,''))||0;
+}
+
+// ══════════════════════════════════════════════════
+// FILTER GAME BERDASARKAN NOMINAL
+// ══════════════════════════════════════════════════
+var currentNomMin = 0;
+var gameDataAll = [];
+
+function filterGameNominal(minVal){
+  currentNomMin = minVal;
+  ['nfAll','nf1','nf5','nf10','nf50'].forEach(function(id){ var b=document.getElementById(id); if(b)b.classList.remove('active'); });
+  var pillMap = {0:'nfAll',1000000:'nf1',5000000:'nf5',10000000:'nf10',50000000:'nf50'};
+  var pill = document.getElementById(pillMap[minVal]);
+  if(pill) pill.classList.add('active');
+  var cards = document.querySelectorAll('#cardListG .game-card');
+  cards.forEach(function(c){
+    var nomEl = c.querySelector('.game-nominal');
+    if(!nomEl){ c.style.display=''; return; }
+    var nomVal = parseInt((nomEl.textContent||'').replace(/[^0-9]/g,''))||0;
+    c.style.display = (nomVal >= minVal) ? '' : 'none';
+  });
+}
+
+// ══════════════════════════════════════════════════
+// SORT GAME
+// ══════════════════════════════════════════════════
+function sortGame(mode){
+  var container = document.getElementById('cardListG');
+  if(!container) return;
+  var cards = Array.from(container.querySelectorAll('.game-card'));
+  cards.sort(function(a,b){
+    if(mode === 'terbesar' || mode === 'terkecil'){
+      var na = parseInt((a.querySelector('.game-nominal')||{textContent:''}).textContent.replace(/[^0-9]/g,''))||0;
+      var nb = parseInt((b.querySelector('.game-nominal')||{textContent:''}).textContent.replace(/[^0-9]/g,''))||0;
+      return mode==='terbesar' ? nb-na : na-nb;
+    }
+    if(mode === 'az'){
+      var ga = (a.dataset.gname||''); var gb = (b.dataset.gname||'');
+      return ga.localeCompare(gb);
+    }
+    // terbaru = rank #1, #2, dst (sudah urutan terbaru)
+    var ra = parseInt((a.querySelector('.game-rank')||{textContent:'#1'}).textContent.replace('#',''))||0;
+    var rb = parseInt((b.querySelector('.game-rank')||{textContent:'#1'}).textContent.replace('#',''))||0;
+    return ra - rb;
+  });
+  cards.forEach(function(c){ container.appendChild(c); });
+  filterGameNominal(currentNomMin);
+}
+
+// ══════════════════════════════════════════════════
+// PATCH renderGame: tambahkan badge BARU + visible + foto overlay
+// ══════════════════════════════════════════════════
+var _origRenderGame = renderGame;
+renderGame = function(data, totalAll){
+  _origRenderGame(data, totalAll);
+  // Patch badge baru
+  var container = document.getElementById('cardListG');
+  if(!container) return;
+  var cards = container.querySelectorAll('.game-card');
+  data.forEach(function(jp, i){
+    var card = cards[i];
+    if(!card) return;
+    var infoVal = card.querySelectorAll('.game-info-value');
+    if(infoVal[1] && isBaru(jp.tanggal)){
+      infoVal[1].innerHTML += '<span class="badge-baru">BARU</span>';
+    }
+    // Wrap foto dengan overlay
+    var fotoImg = card.querySelector('.game-foto');
+    if(fotoImg){
+      var wrap = document.createElement('div');
+      wrap.className = 'game-foto-overlay';
+      fotoImg.parentNode.insertBefore(wrap, fotoImg);
+      wrap.appendChild(fotoImg);
+      wrap.onclick = function(){ openLB_src(fotoImg.src); };
+      fotoImg.onclick = null;
+    }
+    card.classList.add('visible');
+  });
+  // Re-init lazy observer untuk game cards baru
+  initLazyBkti();
+  // Animate stats setelah render game
+  setTimeout(animateStats, 300);
+};
+
+// ══════════════════════════════════════════════════
+// PATCH renderPasaran: tambahkan badge BARU
+// ══════════════════════════════════════════════════
+var _origRenderPasaran = renderPasaran;
+renderPasaran = function(jpMap, total){
+  _origRenderPasaran(jpMap, total);
+  // Tambah badge BARU di pasaran yang baru update
+  Object.keys(jpMap).forEach(function(k){
+    var jps = jpMap[k];
+    jps.forEach(function(jp){
+      if(isBaru(jp.tanggal)){
+        // Cari card dengan nama pasaran
+        var cards = document.querySelectorAll('#cardListP .pasaran-card');
+        cards.forEach(function(card){
+          if((card.dataset.name||'') === k){
+            var badgeEl = card.querySelector('.jp-badge');
+            if(badgeEl && !badgeEl.querySelector('.badge-baru')){
+              badgeEl.innerHTML += ' <span class="badge-baru">BARU</span>';
+            }
+          }
+        });
+      }
+    });
+  });
+  // Animate stats
+  setTimeout(animateStats, 300);
+};
 
 </script>
 </body>
