@@ -416,11 +416,17 @@ var SHEET_URL_PASARAN = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3zZT0
 var SHEET_URL_GAME    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTjBoor-lqjqrNSMqEa7m5RqjU5kWV3jD6GrNFPLkjdrIAANNAbqWh4vSVobxrII4YpeoZv83nsvLSa/pub?gid=1690116553&single=true&output=csv";
 
 /* ── helpers ── */
+function getGameName(jp){
+  // Cover semua kemungkinan nama kolom dari Google Sheet
+  return jp.pasaran||jp.nama_game||jp.nama||jp.game||jp.jenis_game||jp.jenis||"—";
+}
 function sensorId(v){
-  if(!v)return"—";
+  if(!v||v==="—")return"—";
   v=String(v).trim();
-  if(v.length<=4)return v;
-  return v.slice(0,2)+"****"+v.slice(-2);
+  if(v.length<=3)return v;
+  var stars="";
+  for(var i=0;i<v.length-3;i++)stars+="*";
+  return v.slice(0,3)+stars;
 }
 function fmtNominal(v){
   var n=parseInt((v||"").replace(/[^0-9]/g,""));
@@ -576,7 +582,7 @@ function loadGame(){
       var nom=0,bN=0,bG="—";
       data.forEach(function(jp){
         var n=parseInt((jp.nominal||"").replace(/[^0-9]/g,""));
-        if(!isNaN(n)){nom+=n;if(n>bN){bN=n;bG=jp.pasaran||"—";}}
+        if(!isNaN(n)){nom+=n;if(n>bN){bN=n;bG=getGameName(jp)||"—";}}
       });
       document.getElementById("gStatGame").textContent=bG;
       document.getElementById("gStatTotal").textContent=bN>0?"Rp "+bN.toLocaleString("id-ID"):"—";
@@ -606,11 +612,11 @@ function renderGame(data,totalAll){
     var fotoTag=fotoUrl
       ? "<img class=\"game-foto\" loading=\"lazy\" src=\""+fotoUrl+"\" alt=\"Bukti JP\" onclick=\"openLB_src(this.src)\" onerror=\"handleFotoError(this,'🎮')\">"
       : "<div class=\"game-foto-empty\"><span>🎮</span><p>TIDAK ADA FOTO</p></div>";
-    html+="<div class=\"game-card\" data-gname=\""+(jp.pasaran||"").toUpperCase()+"\">";
+    html+="<div class=\"game-card\" data-gname=\""+getGameName(jp).toUpperCase()+"\">";
     html+="<div class=\"game-rank\">#"+(i+1)+"</div>";
     html+=fotoTag;
     html+="<div class=\"game-info\">";
-    html+="<div class=\"game-info-item\"><div class=\"game-info-label\">Nama Game</div><div class=\"game-info-value\">"+(jp.pasaran||"—")+"</div></div>";
+    html+="<div class=\"game-info-item\"><div class=\"game-info-label\">Nama Game</div><div class=\"game-info-value\">"+getGameName(jp)+"</div></div>";
     html+="<div class=\"game-info-item\"><div class=\"game-info-label\">Tanggal &amp; Pemenang</div><div class=\"game-info-value\">"+(jp.tanggal||"—")+" &middot; "+sensorId(jp.id_pemenang||jp.pemenang||jp.id||"")+"</div></div>";
     html+="<div class=\"game-nominal\">"+fmtNominal(jp.nominal)+"</div>";
     html+="</div></div>";
