@@ -151,7 +151,7 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
 
 /* LIGHTBOX */
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);}
-.lightbox.open{display:flex;}
+.lightbox.active{display:flex;}
 .lightbox-img{max-width:90vw;max-height:85vh;object-fit:contain;border:1px solid var(--border-bright);border-radius:4px;}
 .lightbox-close{position:absolute;top:20px;right:20px;background:rgba(201,168,76,0.1);border:1px solid var(--border-bright);color:var(--gold);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .2s;}
 .lightbox-close:hover{background:rgba(201,168,76,0.25);}
@@ -362,7 +362,7 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
 <div class="tab-panel" id="panelGame">
   <div class="stats-bar">
     <div class="stat-card"><div class="stat-label">Game JP Terbesar</div><div class="stat-value" id="gStatGame" style="font-size:11px">—</div></div>
-    <div class="stat-card"><div class="stat-label">JP Terbesar</div><div class="stat-value green" id="gStatBiggest">—</div></div>
+    <div class="stat-card"><div class="stat-label">JP Terbesar</div><div class="stat-value green" id="gStatTotal">—</div></div>
     <div class="stat-card"><div class="stat-label">Total Nominal</div><div class="stat-value green" id="gStatNominal">—</div></div>
   </div>
   <div class="search-wrap">
@@ -405,8 +405,8 @@ body{background:var(--dark);color:var(--text);font-family:"Rajdhani",sans-serif;
 </div>
 
 <div class="lightbox" id="lightbox" onclick="closeLB(event)">
-  <button class="lightbox-close" onclick="closeLB()">✕</button>
-  <img class="lightbox-img" id="lightboxImg" src="" alt="Bukti JP">
+  <button class="lightbox-close" id="lbClose" onclick="closeLB()">✕</button>
+  <img class="lightbox-img" id="lbImg" src="" alt="Bukti JP">
 </div>
 <footer class="site-footer">© NAMATOTO &nbsp;·&nbsp; BUKTI JP &nbsp;·&nbsp; ALL RIGHTS RESERVED</footer>
 <button class="scroll-top-btn" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Kembali ke atas">▲</button>
@@ -437,15 +437,27 @@ function fixImgUrl(u){
   return u;
 }
 function parseCSV(txt){
+  function splitRow(row){
+    var cols=[],cur="",inQ=false;
+    for(var i=0;i<row.length;i++){
+      var c=row[i];
+      if(c==='"'){inQ=!inQ;}
+      else if(c===","&&!inQ){cols.push(cur.trim());cur="";}
+      else{cur+=c;}
+    }
+    cols.push(cur.trim());
+    return cols;
+  }
   var lines=txt.trim().split("\n");
   if(lines.length<2)return[];
-  var headers=lines[0].split(",").map(function(h){return h.trim().toLowerCase().replace(/\s+/g,"_").replace(/[^a-z0-9_]/g,"");});
+  var headers=splitRow(lines[0]).map(function(h){return h.trim().toLowerCase().replace(/\s+/g,"_").replace(/[^a-z0-9_]/g,"");});
   var rows=[];
   for(var i=1;i<lines.length;i++){
-    var cols=lines[i].split(",");
+    if(!lines[i].trim())continue;
+    var cols=splitRow(lines[i]);
     var obj={};
     headers.forEach(function(h,j){obj[h]=(cols[j]||"").trim().replace(/^"|"$/g,"");});
-    if(obj.pasaran||obj.foto_url)rows.push(obj);
+    if(obj.pasaran||obj.foto_url||obj.timestamp)rows.push(obj);
   }
   return rows;
 }
@@ -538,7 +550,7 @@ function renderPasaran(data,total){
     html+=fotoTag;
     html+="<div class=\"game-info\">";
     html+="<div class=\"game-info-item\"><div class=\"game-info-label\">Nama Pasaran</div><div class=\"game-info-value\">"+(jp.pasaran||"—")+"</div></div>";
-    html+="<div class=\"game-info-item\"><div class=\"game-info-label\">Tanggal &amp; Pemenang</div><div class=\"game-info-value\">"+(jp.tanggal||"—")+" &middot; "+sensorId(jp.id_pemenang||jp.pemenang)+"</div></div>";
+    html+="<div class=\"game-info-item\"><div class=\"game-info-label\">Tanggal &amp; Pemenang</div><div class=\"game-info-value\">"+(jp.tanggal||"—")+" &middot; "+sensorId(jp.id_pemenang||jp.pemenang||jp.id||"")+"</div></div>";
     html+="<div class=\"game-nominal\">"+fmtNominal(jp.nominal)+"</div>";
     html+="</div></div>";
   });
@@ -566,8 +578,8 @@ function loadGame(){
         var n=parseInt((jp.nominal||"").replace(/[^0-9]/g,""));
         if(!isNaN(n)){nom+=n;if(n>bN){bN=n;bG=jp.pasaran||"—";}}
       });
-      document.getElementById("gStatTotal").textContent=total||"0";
       document.getElementById("gStatGame").textContent=bG;
+      document.getElementById("gStatTotal").textContent=bN>0?"Rp "+bN.toLocaleString("id-ID"):"—";
       document.getElementById("gStatNominal").textContent=nom>0?"Rp "+nom.toLocaleString("id-ID"):"—";
       setTimeout(animateStats,300);
     })
@@ -599,7 +611,7 @@ function renderGame(data,totalAll){
     html+=fotoTag;
     html+="<div class=\"game-info\">";
     html+="<div class=\"game-info-item\"><div class=\"game-info-label\">Nama Game</div><div class=\"game-info-value\">"+(jp.pasaran||"—")+"</div></div>";
-    html+="<div class=\"game-info-item\"><div class=\"game-info-label\">Tanggal &amp; Pemenang</div><div class=\"game-info-value\">"+(jp.tanggal||"—")+" &middot; "+sensorId(jp.id_pemenang||jp.pemenang)+"</div></div>";
+    html+="<div class=\"game-info-item\"><div class=\"game-info-label\">Tanggal &amp; Pemenang</div><div class=\"game-info-value\">"+(jp.tanggal||"—")+" &middot; "+sensorId(jp.id_pemenang||jp.pemenang||jp.id||"")+"</div></div>";
     html+="<div class=\"game-nominal\">"+fmtNominal(jp.nominal)+"</div>";
     html+="</div></div>";
   });
