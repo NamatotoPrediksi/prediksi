@@ -526,7 +526,7 @@ function loadPasaran(){
       document.getElementById("pStatTotal").textContent=bP;
       document.getElementById("pStatAktif").textContent=bN>0?"Rp "+bN.toLocaleString("id-ID"):"—";
       document.getElementById("pStatNominal").textContent=nom>0?"Rp "+nom.toLocaleString("id-ID"):"—";
-      setTimeout(animateStats,300);
+      
     })
     .catch(function(err){
       document.getElementById("loadingP").style.display="none";
@@ -587,7 +587,7 @@ function loadGame(){
       document.getElementById("gStatGame").textContent=bG;
       document.getElementById("gStatTotal").textContent=bN>0?"Rp "+bN.toLocaleString("id-ID"):"—";
       document.getElementById("gStatNominal").textContent=nom>0?"Rp "+nom.toLocaleString("id-ID"):"—";
-      setTimeout(animateStats,300);
+      
     })
     .catch(function(err){
       document.getElementById("loadingG").style.display="none";
@@ -737,25 +737,7 @@ function sortGame(mode){
 }
 
 /* ── COUNTER ANIMATION ── */
-function animateCounter(el,start,end,duration,prefix,suffix){
-  if(!el)return;
-  var t0=null;
-  function step(ts){
-    if(!t0)t0=ts;
-    var p=Math.min((ts-t0)/duration,1);
-    var e=1-Math.pow(1-p,3);
-    el.textContent=(prefix||"")+Math.floor(start+(end-start)*e).toLocaleString("id-ID")+(suffix||"");
-    if(p<1)requestAnimationFrame(step);
-    else el.textContent=(prefix||"")+end.toLocaleString("id-ID")+(suffix||"");
-  }
-  requestAnimationFrame(step);
-}
-function animateStats(){
-  var pTotal=document.getElementById("pStatTotal");
-  if(pTotal){var v=parseInt((pTotal.textContent||"").replace(/[^0-9]/g,""));if(!isNaN(v)&&v>0)animateCounter(pTotal,0,v,800,"","");}
-  var gTotal=document.getElementById("gStatTotal");
-  if(gTotal){var v2=parseInt((gTotal.textContent||"").replace(/[^0-9]/g,""));if(!isNaN(v2)&&v2>0)animateCounter(gTotal,0,v2,800,"","");}
-}
+/* animateCounter dihapus - menyebabkan nilai stat terlihat random saat animasi */
 
 /* ── BADGE BARU (<48 jam) ── */
 function isBaru(tgl){
