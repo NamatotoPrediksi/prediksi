@@ -769,42 +769,12 @@ function isGenerating(wib) {
 //   - "Resulted" means current time > result time + 30 minutes
 // ═══════════════════════════════════════════════════════════════════
 function getSortKey(item, cur) {
-  // cur = current WIB minutes (0–1439)
+  // ESKALATOR SEDERHANA:
+  // isDone = jam sekarang sudah lewati jam result
+  // Urutan selalu 00:00 → 23:59 tanpa manipulasi apapun
   const rMins = timeToMins(item.result);
-
-  // LOGIKA BENAR:
-  // Setiap hari reset dari 00:00 WIB.
-  // "Done" = jam result sudah terlewati hari ini.
-  //
-  // Kasus khusus pasaran OVERNIGHT (result 00:00–05:59):
-  //   - Jika sekarang 00:00–05:59 DAN sudah lewat jam result → done
-  //   - Jika sekarang 06:00+ → pasaran overnight sudah result tadi malam → done
-  //   - Jika sekarang 00:00–05:59 DAN belum lewat jam result → upcoming
-  //
-  // Pasaran normal (result 06:00–23:59):
-  //   - Done jika cur >= rMins
-  //   - Upcoming jika cur < rMins
-
-  let isDone = false;
-
-  if (rMins < 360) {
-    // Pasaran overnight
-    if (cur >= 360) {
-      // Sudah siang/malam — pasaran overnight tadi sudah result
-      isDone = true;
-    } else {
-      // Masih dini hari — done hanya jika sudah lewat jam resultnya
-      isDone = cur >= rMins;
-    }
-  } else {
-    // Pasaran normal — done jika jam sekarang sudah lewati jam result
-    isDone = cur >= rMins;
-  }
-
-  // rAdj untuk sorting: overnight dijadikan 1440+ agar muncul paling akhir di upcoming
-  const rAdj = rMins < 360 ? rMins + 1440 : rMins;
-
-  return { isDone, rAdj };
+  const isDone = cur > rMins;
+  return { isDone, rAdj: rMins };
 }
 
 function getStatus(item, wib) {
@@ -965,12 +935,8 @@ function render() {
 
   // Sort upcoming: soonest result first (by actual result time)
   upcoming.sort((a, b) => a.rAdj - b.rAdj);
-  // Sort done: urut 00:00-23:59 (gunakan rMins asli bukan rAdj agar urut natural)
-  done.sort((a, b) => {
-    const aM = a.rAdj >= 1440 ? a.rAdj - 1440 : a.rAdj;
-    const bM = b.rAdj >= 1440 ? b.rAdj - 1440 : b.rAdj;
-    return aM - bM;
-  });
+  // Sort done: urut 00:00-23:59 natural
+  done.sort((a, b) => a.rAdj - b.rAdj);
 
   // Find next-up (first in upcoming that hasn't closed yet)
   let nextUpIdx = upcoming.length > 0 ? 0 : -1;
